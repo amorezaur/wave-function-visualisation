@@ -1,0 +1,33 @@
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+.container {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.div1,
+.div3 {
+	flex: 0 0 auto; /* Div1 i Div3 dostosowują się do zawartości */
+}
+
+.div2 {
+	flex: 1; /* Div2 wypełnia cały pozostały obszar */
+}
+
+.div1 {
+	background-color: #ffcccc; /* kolor tła dla div 1 */
+}
+
+.div2 {
+	background-color: #ccffcc; /* kolor tła dla div 2 */
+}
+
+.div3 {
+	background-color: #ccccff; /* kolor tła dla div 3 */
+}
