@@ -24,15 +24,19 @@ body,
 	padding: 0;
 }
 
+#root {
+	display: flex;
+}
 .mainContainer {
 	background-color: moccasin;
 	display: flex;
 }
 .graphContainer {
 	height: 100%;
+	/* width: 100%; */
 	/* margin: -6px 0; */
 	/* padding: 10px; */
-	background-color: aliceblue;
+	background-color: lightblue;
 }
 .blue {
 	width: 100%;
@@ -57,4 +61,15 @@ body,
 .orange {
 	background-color: orange;
 	/* width: 100%; */
+}
+
+.siderTrigger {
+	width: 100%;
+	color: white;
+	background-color: #001529;
+}
+.siderTrigger:hover {
+	/* width: 100%; */
+	color: #001529;
+	background-color: white;
 }

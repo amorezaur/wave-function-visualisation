@@ -11,7 +11,7 @@ const MainPage = () => {
 	};
 
 	const waveGraphProps: WaveGraphProps = {
-		dataSource: dataSource,
+		dataSource: [],
 		numberOfPoints: 100,
 	};
 

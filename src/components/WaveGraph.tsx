@@ -11,6 +11,7 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { DataItem } from "./AntdLayout/ReadFile2";
 
 export interface PointCoordinates {
 	count: number;
@@ -20,7 +21,7 @@ export interface PointCoordinates {
 }
 
 export interface WaveGraphProps {
-	dataSource: PointCoordinates[];
+	dataSource: DataItem[];
 	numberOfPoints: number;
 }
 
@@ -28,9 +29,9 @@ const WaveGraph = ({ props }: { props: WaveGraphProps }) => {
 	const { dataSource, numberOfPoints } = props;
 	// const data = dataSource.slice(0, 20);
 	const data = dataSource;
-	const XAxisDataKey: keyof PointCoordinates = "count";
-	const YAxisDataKey_1: keyof PointCoordinates = "p(r)";
-	const YAxisDataKey_2: keyof PointCoordinates = "q(r)";
+	const XAxisDataKey: keyof DataItem = "count";
+	const YAxisDataKey_1: keyof DataItem = "p";
+	const YAxisDataKey_2: keyof DataItem = "q";
 	const interval = data.length > 10 ? Math.floor(data.length / 10) : 0;
 
 	const [rangeMin, setRangeMin] = useState<number>(20);
@@ -104,84 +105,82 @@ const WaveGraph = ({ props }: { props: WaveGraphProps }) => {
 	};
 	return (
 		<div className="graphContainer">
-			<div className="red">
-				<ResponsiveContainer>
-					<LineChart
-						data={data.slice(range[0], range[1])}
-						margin={{
-							top: 40,
-							right: 40,
-							left: 0,
-							bottom: 5,
-						}}
-						onMouseDown={(e) =>
-							setGraphState((data) => ({
-								...data,
-								refAreaLeft: e.activeLabel as string,
-							}))
-						}
-						onMouseMove={(e) =>
-							graphState.refAreaLeft &&
-							setGraphState((data) => ({
-								...data,
-								refAreaRight: e.activeLabel as string,
-							}))
-						}
-						// // eslint-disable-next-line react/jsx-no-bind
-						onMouseUp={zoom}
-					>
-						<CartesianGrid strokeDasharray="3 3" fill="white" />
-						<YAxis dataKey={YAxisDataKey_1} />
-						<XAxis
-							type="number"
-							dataKey={XAxisDataKey}
-							range={range}
-							domain={range}
-							// stroke="white"
-							// opacity={0.4}
+			<ResponsiveContainer>
+				<LineChart
+					data={data.slice(range[0], range[1])}
+					margin={{
+						top: 40,
+						right: 40,
+						left: 0,
+						bottom: 5,
+					}}
+					onMouseDown={(e) =>
+						setGraphState((data) => ({
+							...data,
+							refAreaLeft: e.activeLabel as string,
+						}))
+					}
+					onMouseMove={(e) =>
+						graphState.refAreaLeft &&
+						setGraphState((data) => ({
+							...data,
+							refAreaRight: e.activeLabel as string,
+						}))
+					}
+					// // eslint-disable-next-line react/jsx-no-bind
+					onMouseUp={zoom}
+				>
+					<CartesianGrid strokeDasharray="3 3" fill="white" />
+					<YAxis dataKey={YAxisDataKey_1} />
+					<XAxis
+						type="number"
+						dataKey={XAxisDataKey}
+						range={range}
+						domain={range}
+						// stroke="white"
+						// opacity={0.4}
+					/>
+					<Tooltip />
+					<Legend />
+					{showP && (
+						<Line
+							type="monotone"
+							dataKey={YAxisDataKey_1}
+							stroke="red"
+							dot={false}
+							// activeDot={{ r: 8 }}
 						/>
-						<Tooltip />
-						<Legend />
-						{showP && (
-							<Line
-								type="monotone"
-								dataKey={YAxisDataKey_1}
-								stroke="red"
-								dot={false}
-								// activeDot={{ r: 8 }}
-							/>
-						)}
-						{refAreaLeft && refAreaRight ? (
-							<ReferenceArea
-								yAxisId="1"
-								x1={refAreaLeft}
-								x2={refAreaRight}
-								strokeOpacity={0.3}
-							/>
-						) : null}
-					</LineChart>
-				</ResponsiveContainer>
-			</div>
-			<div className="slider orange">
-				{/* <Slider
+					)}
+					{refAreaLeft && refAreaRight ? (
+						<ReferenceArea
+							yAxisId="1"
+							x1={refAreaLeft}
+							x2={refAreaRight}
+							strokeOpacity={0.3}
+						/>
+					) : null}
+				</LineChart>
+			</ResponsiveContainer>
+			{/* <div className="slider orange"> */}
+			{/* <Slider
 					range
 					min={range[0]}
 					max={range[1]}
 					// defaultValue={[0, data.length]}
 					onChangeComplete={(value) => setRange(value)}
 				/> */}
-				<Slider
+			{/* <Slider
 					range
 					min={0}
 					max={data.length}
 					defaultValue={[0, data.length]}
 					onChangeComplete={(value) => setRange(value)}
 					// value={range}
-				/>
-			</div>
-			<Checkbox onChange={onChange} value={showP}>
+				/> */}
+			{/* </div> */}
+			{/* <Checkbox onChange={onChange} value={showP}>
 				Checkbox
-			</Checkbox>
+			</Checkbox> */}
 		</div>
 	);
 };
