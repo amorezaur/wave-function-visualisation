@@ -11,7 +11,14 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import { DataItem } from "./AntdLayout/ReadFile2";
+import { DataItem } from "./ReadFile2";
+
+export interface PointCoordinates {
+	count: number;
+	r: number;
+	"p(r)": number;
+	"q(r)": number;
+}
 
 export interface WaveGraphProps {
 	dataSource: DataItem[];
@@ -155,13 +162,13 @@ const WaveGraph = ({ props }: { props: WaveGraphProps }) => {
 				</LineChart>
 			</ResponsiveContainer>
 			{/* <div className="slider orange"> */}
-			{/* <Slider
-					range
-					min={range[0]}
-					max={range[1]}
-					// defaultValue={[0, data.length]}
-					onChangeComplete={(value) => setRange(value)}
-				/> */}
+			<Slider
+				range
+				min={range[0]}
+				max={range[1]}
+				// defaultValue={[0, data.length]}
+				onChangeComplete={(value) => setRange(value)}
+			/>
 			{/* <Slider
 					range
 					min={0}

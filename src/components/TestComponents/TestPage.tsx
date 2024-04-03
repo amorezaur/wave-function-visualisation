@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import "./styles2.css";
-import WaveGraph, { PointCoordinates, WaveGraphProps } from "../WaveGraph";
+// import "./styles2.css";
+import WaveGraph, { WaveGraphProps } from "../WaveGraph";
+import { PointCoordinates } from "../PointCoordinates";
 import { Button, Menu, MenuProps } from "antd";
 import {
 	AppstoreOutlined,

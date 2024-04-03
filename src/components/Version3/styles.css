@@ -1,0 +1,76 @@
+:root {
+	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+	line-height: 1.5;
+	font-weight: 400;
+
+	/* color-scheme: light dark; */
+	/* color: rgba(255, 255, 255, 0.87); */
+	/* background-color: #242424; */
+
+	/* font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-text-size-adjust: 100%; */
+}
+
+html,
+body,
+#root,
+.mainContainer {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#root {
+	display: flex;
+}
+.mainContainer {
+	background-color: moccasin;
+	display: flex;
+}
+.graphContainer {
+	padding: 20px;
+	height: 87%;
+	/* width: 100%; */
+	/* margin: -6px 0; */
+	/* padding: 10px; */
+	/* background-color: lightblue; */
+}
+.blue {
+	width: 100%;
+	background-color: blue;
+}
+.yellow {
+	/* width: 20%; */
+	background-color: yellow;
+}
+
+.slider {
+	padding: 10px 50px;
+}
+
+.red {
+	background-color: lightgrey;
+	height: 100%;
+}
+.green {
+	background-color: green;
+}
+.orange {
+	background-color: orange;
+	/* width: 100%; */
+}
+
+.siderTrigger {
+	width: 100%;
+	color: white;
+	background-color: #001529;
+}
+.siderTrigger:hover {
+	/* width: 100%; */
+	color: #001529;
+	background-color: white;
+}

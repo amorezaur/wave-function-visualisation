@@ -1,10 +1,14 @@
-import React from "react";
-import { PointCoordinates } from "./PointCoordinates";
+import React, { useState } from "react";
+import { PointCoordinates } from "../PointCoordinates";
+import { Button, Space, Upload } from "antd";
+import { UploadOutlined } from "../Icons";
 
 interface ReadFileProps {
 	getFileData: (newData: PointCoordinates[]) => void;
 }
 const ReadFile = ({ getFileData }: ReadFileProps) => {
+	const [fileName, setFileName] = useState<string | null>(null);
+
 	//Liczba kolumn z danymi
 	const dataColumnsCount: number = 3;
 	const showFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,29 +78,77 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 	};
 
 	return (
-		<div>
-			{/* <button
-				style={{ display: "block" }}
-				onClick={() => {
-					// let aaa = [
-					// 	"lines   # COWF continuum spinor output file opened at 17:16:35 on Jan 02 2024.",
-					// ];
-					// console.log("aaa", aaa);
-					// // const whitespaceRegex: string = "\\s+";
-					// const whitespaceRegex: string = " ";
-					// let bbb = aaa.map((x) => x.split(whitespaceRegex));
-					// console.log("bbb", bbb);
+		// <div>
+		// 	{/* <button
+		// 		style={{ display: "block" }}
+		// 		onClick={() => {
+		// 			// let aaa = [
+		// 			// 	"lines   # COWF continuum spinor output file opened at 17:16:35 on Jan 02 2024.",
+		// 			// ];
+		// 			// console.log("aaa", aaa);
+		// 			// // const whitespaceRegex: string = "\\s+";
+		// 			// const whitespaceRegex: string = " ";
+		// 			// let bbb = aaa.map((x) => x.split(whitespaceRegex));
+		// 			// console.log("bbb", bbb);
 
-					let ddd =
-						"aaa   # COWF continuum spinor output file opened at 17:16:35 on Jan 02 2024.                    ";
-					let eee = ddd.split(/\s+/g);
-					console.log("eee", eee);
+		// 			let ddd =
+		// 				"aaa   # COWF continuum spinor output file opened at 17:16:35 on Jan 02 2024.                    ";
+		// 			let eee = ddd.split(/\s+/g);
+		// 			console.log("eee", eee);
+		// 		}}
+		// 	>
+		// 		hello
+		// 	</button> */}
+		// 	<input type="file" onChange={(e) => showFile(e)} />
+		// </div>
+
+		<Space>
+			<Upload
+				multiple={false}
+				showUploadList={false}
+				beforeUpload={(file) => {
+					setFileName(file.name); // Zapisanie nazwy pliku
+
+					const reader = new FileReader();
+					reader.onload = (e: ProgressEvent<FileReader>) => {
+						let initialPoint: PointCoordinates = {
+							count: 0,
+							r: 0,
+							"p(r)": 0,
+							"q(r)": 0,
+						};
+						let resultData: PointCoordinates[] = [initialPoint];
+
+						const text = e.target?.result as string;
+						// Podział tekstu na linie
+						let lines = text.split("\n");
+						//Pominięcie wierszy z komentarzami
+						lines = lines.filter((x) => !x.includes("#"));
+						lines.forEach((line, index) => {
+							const trimmedLine = line.trim();
+							let row = trimmedLine.split(/\s+/).map(Number);
+							if (row.length === dataColumnsCount) {
+								resultData.push({
+									count: index + 1,
+									r: row[0],
+									"p(r)": row[1],
+									"q(r)": row[2],
+								});
+							}
+						});
+						getFileData(resultData);
+					};
+					reader.readAsText(file);
+					// Prevent upload
+					return false;
 				}}
 			>
-				hello
-			</button> */}
-			<input type="file" onChange={(e) => showFile(e)} />
-		</div>
+				<Button>
+					<UploadOutlined /> Wybierz plik
+				</Button>
+			</Upload>
+			{fileName}
+		</Space>
 	);
 };
 

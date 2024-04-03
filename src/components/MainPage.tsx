@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ReadFile from "./ReadFile";
-import WaveGraph, { PointCoordinates, WaveGraphProps } from "./WaveGraph";
+import WaveGraph, { WaveGraphProps } from "./WaveGraph";
+import { PointCoordinates } from "./PointCoordinates";
 import Example from "./Example";
 
 const MainPage = () => {
@@ -20,10 +21,16 @@ const MainPage = () => {
 			<div className="yellow">
 				<ReadFile getFileData={getFileData} />
 			</div>
-			<div className="blue">
-				<WaveGraph props={waveGraphProps} />
-				{/* <Example dataSource={dataSource} /> */}
-			</div>
+			{!!dataSource.length && (
+				<div
+					className="blue"
+					style={{ padding: "30px", backgroundColor: "lightgrey" }}
+				>
+					{/* <WaveGraph props={waveGraphProps} /> */}
+
+					{!!dataSource.length && <Example dataSource={dataSource} />}
+				</div>
+			)}
 			{/* {!!dataSource.length && ( */}
 			{/* )} */}
 

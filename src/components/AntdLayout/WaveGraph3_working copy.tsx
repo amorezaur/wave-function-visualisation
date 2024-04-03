@@ -11,7 +11,14 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
-import { DataItem } from "./AntdLayout/ReadFile2";
+import { DataItem } from "./ReadFile2";
+
+export interface PointCoordinates {
+	count: number;
+	r: number;
+	"p(r)": number;
+	"q(r)": number;
+}
 
 export interface WaveGraphProps {
 	dataSource: DataItem[];
