@@ -19,7 +19,7 @@ interface ExampleProps {
 	dataSource: PointCoordinates[];
 }
 const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
-	const XAxisDataKey: keyof PointCoordinates = "count";
+	const XAxisDataKey: keyof PointCoordinates = "r";
 	const YAxisDataKey_1: keyof PointCoordinates = "p(r)";
 	const YAxisDataKey_2: keyof PointCoordinates = "q(r)";
 	const YAxisDataKey_3: keyof PointCoordinates = "r";
@@ -194,10 +194,10 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 		// console.log("refData", refData);
 
 		let indexStart = initialDataSource.findIndex(
-			(x) => x[XAxisDataKey] === leftBorder
+			(x) => x[XAxisDataKey] < leftBorder || x[XAxisDataKey] === leftBorder
 		);
 		let indexEnd = initialDataSource.findIndex(
-			(x) => x[XAxisDataKey] === rightBorder
+			(x) => x[XAxisDataKey] > rightBorder || x[XAxisDataKey] === rightBorder
 		);
 		setDataSource(
 			initialDataSource.slice(indexStart, indexEnd + 1)
@@ -374,6 +374,7 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 				// 	setRightBorder(value[1]);
 				// }}
 				value={[leftBorder, rightBorder]}
+				// value={dataSource.map((x) => x[XAxisDataKey])}
 				onChange={(value) => {
 					// console.log("value", value);
 					setLeftBorder(value[0]);
