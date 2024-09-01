@@ -1,9 +1,9 @@
 import { Flex, Layout } from "antd";
 import React, { useState } from "react";
 import "./styles.css";
-import Example from "../Example";
+import Example from "./Example";
 import ReadFile from "./ReadFile";
-import { PointCoordinates } from "../PointCoordinates";
+import { PointCoordinates } from "./PointCoordinates";
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -54,7 +54,7 @@ const layoutStyle = {
 	flex: 1,
 };
 
-const MainLayout = () => {
+const MainLayout_v1 = () => {
 	const [dataSource, setDataSource] = useState<PointCoordinates[]>([]);
 
 	const getFileData = (newData: PointCoordinates[]) => {
@@ -92,4 +92,4 @@ const MainLayout = () => {
 	);
 };
 
-export default MainLayout;
+export default MainLayout_v1;

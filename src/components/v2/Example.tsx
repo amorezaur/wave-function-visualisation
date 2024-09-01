@@ -1,19 +1,17 @@
-import React, { PureComponent, useEffect, useState } from "react";
+import { Button, Checkbox, InputNumber, Slider } from "antd";
+import { useEffect, useState } from "react";
 import {
-	Label,
-	LineChart,
-	Line,
 	CartesianGrid,
-	XAxis,
-	YAxis,
-	Tooltip,
+	Legend,
+	Line,
+	LineChart,
 	ReferenceArea,
 	ResponsiveContainer,
-	Legend,
+	Tooltip,
+	XAxis,
+	YAxis,
 } from "recharts";
-import { AxisDomainItem } from "recharts/types/util/types";
 import { PointCoordinates } from "./PointCoordinates";
-import { Button, Checkbox, Input, InputNumber, Slider, Space } from "antd";
 
 interface ExampleProps {
 	dataSource: PointCoordinates[];

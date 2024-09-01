@@ -1,15 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import MainPage from "./components/MainPage";
-import TestPage from "./components/TestComponents/TestPage";
-import AntdLayout from "./components/AntdLayout/AntdLayout";
-import MainLayout from "./components/Version3/MainLayout";
+import MainLayout_v1 from "./components/v1/MainLayout_v1";
+import MainLayout_v2 from "./components/v2/MainLayout_v2";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
-		{/* <MainPage /> */}
-		{/* <TestPage /> */}
-		{/* <AntdLayout /> */}
-		<MainLayout />
+		{/* <MainLayout_v1 /> */}
+		<MainLayout_v2 />
 	</React.StrictMode>
 );

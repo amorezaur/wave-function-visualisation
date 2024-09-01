@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { PointCoordinates } from "../PointCoordinates";
-import { Button, Space, Upload } from "antd";
-import { UploadOutlined } from "../Icons";
+import { PointCoordinates } from "./PointCoordinates";
+import { Button, Input, Space, Upload } from "antd";
+import { UploadOutlined } from "../../assets/Icons";
 
 interface ReadFileProps {
 	getFileData: (newData: PointCoordinates[]) => void;
@@ -148,6 +148,7 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 				</Button>
 			</Upload>
 			{fileName}
+			<Input />
 		</Space>
 	);
 };

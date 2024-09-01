@@ -1,26 +1,26 @@
-import React, { PureComponent, useEffect, useState } from "react";
+import { Button, Checkbox, InputNumber, Slider } from "antd";
+import { useEffect, useState } from "react";
 import {
-	Label,
-	LineChart,
-	Line,
 	CartesianGrid,
-	XAxis,
-	YAxis,
-	Tooltip,
+	Legend,
+	Line,
+	LineChart,
 	ReferenceArea,
 	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
 } from "recharts";
-import { AxisDomainItem } from "recharts/types/util/types";
-import { Button, Input, InputNumber, Slider, Space } from "antd";
-import { PointCoordinates } from "../PointCoordinates";
+import { PointCoordinates } from "./PointCoordinates";
 
 interface ExampleProps {
 	dataSource: PointCoordinates[];
 }
 const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
-	const XAxisDataKey: keyof PointCoordinates = "count";
+	const XAxisDataKey: keyof PointCoordinates = "r";
 	const YAxisDataKey_1: keyof PointCoordinates = "p(r)";
 	const YAxisDataKey_2: keyof PointCoordinates = "q(r)";
+	const YAxisDataKey_3: keyof PointCoordinates = "r";
 
 	const getAxisYDomain = (
 		from: string | number | undefined,
@@ -82,6 +82,14 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 	const [bottomBorder, setBottomBorder] = useState<number>(defaultBottom);
 	const [topBorder, setTopBorder] = useState<number>(defaultTop);
 
+	const [showGraph1, setShowGraph1] = useState<boolean>(true);
+	const [showGraph2, setShowGraph2] = useState<boolean>(false);
+	const [showGraph3, setShowGraph3] = useState<boolean>(false);
+
+	const onChange = (e: any) => {
+		console.log("e", e);
+		setShowGraph1((data) => !data);
+	};
 	// const { left, right, refAreaLeft, refAreaRight, top, bottom, top2, bottom2 } =
 	// 	waveGraphState;
 
@@ -184,10 +192,10 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 		// console.log("refData", refData);
 
 		let indexStart = initialDataSource.findIndex(
-			(x) => x[XAxisDataKey] === leftBorder
+			(x) => x[XAxisDataKey] < leftBorder || x[XAxisDataKey] === leftBorder
 		);
 		let indexEnd = initialDataSource.findIndex(
-			(x) => x[XAxisDataKey] === rightBorder
+			(x) => x[XAxisDataKey] > rightBorder || x[XAxisDataKey] === rightBorder
 		);
 		setDataSource(
 			initialDataSource.slice(indexStart, indexEnd + 1)
@@ -205,7 +213,7 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 
 	return (
 		<div className="graphContainer">
-			<ResponsiveContainer width="100%" height={400}>
+			<ResponsiveContainer>
 				<LineChart
 					data={dataSource}
 					onMouseDown={(e) => {
@@ -250,6 +258,8 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 						// 	}));
 					}
 				>
+					<Legend />
+
 					<CartesianGrid strokeDasharray="3 3" fill="white" />
 					<XAxis
 						// allowDataOverflow
@@ -259,39 +269,7 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 						domain={[leftBorder, rightBorder]}
 						type="number"
 					/>
-					<YAxis
-						// dataKey={YAxisDataKey_1}
-						// allowDataOverflow
-						// domain={[-10, 10]}
-						// domain={[bottomBorder, topBorder]}
-						// range={[bottom, top]}
-						// type="number"
-						yAxisId="1"
-					/>
-					<YAxis
-						orientation="right"
-						// allowDataOverflow
-						// domain={[bottom2, top2]}
-						// type="number"
-						yAxisId="2"
-					/>
 					<Tooltip />
-					<Line
-						yAxisId="1"
-						type="monotone"
-						dataKey={YAxisDataKey_1}
-						stroke="#8884d8"
-						animationDuration={300}
-						dot={false}
-					/>
-					{/* <Line
-						yAxisId="2"
-						type="natural"
-						dataKey={YAxisDataKey_2}
-						stroke="#82ca9d"
-						animationDuration={300}
-						dot={false}
-					/> */}
 
 					{refAreaLeft2 && refAreaRight2 ? (
 						<ReferenceArea
@@ -301,6 +279,73 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 							strokeOpacity={0.3}
 						/>
 					) : null}
+
+					{/* WYKRESY */}
+					{/* ----------------------------------------------------- */}
+					{showGraph1 && (
+						<>
+							<Line
+								yAxisId="1"
+								type="monotone"
+								dataKey={YAxisDataKey_1}
+								stroke="blue"
+								animationDuration={300}
+								dot={false}
+							/>
+							<YAxis
+								// dataKey={YAxisDataKey_1}
+								// allowDataOverflow
+								// domain={[-10, 10]}
+								// domain={[bottomBorder, topBorder]}
+								// range={[bottom, top]}
+								// type="number"
+								stroke="blue"
+								yAxisId="1"
+							/>
+						</>
+					)}
+					{/* ----------------------------------------------------- */}
+					{showGraph2 && (
+						<>
+							<Line
+								yAxisId="2"
+								type="natural"
+								dataKey={YAxisDataKey_2}
+								stroke="green"
+								animationDuration={300}
+								dot={false}
+							/>
+							<YAxis
+								orientation="right"
+								// allowDataOverflow
+								// domain={[bottom2, top2]}
+								// type="number"
+								stroke="green"
+								yAxisId="2"
+							/>
+						</>
+					)}
+					{/* ----------------------------------------------------- */}
+					{showGraph3 && (
+						<>
+							<Line
+								yAxisId="3"
+								type="natural"
+								dataKey={YAxisDataKey_3}
+								stroke="red"
+								animationDuration={300}
+								dot={false}
+							/>
+							<YAxis
+								// orientation="right"
+								// allowDataOverflow
+								// domain={[bottom2, top2]}
+								// type="number"
+								stroke="red"
+								yAxisId="3"
+							/>
+						</>
+					)}
 				</LineChart>
 			</ResponsiveContainer>
 			{/* <Slider
@@ -327,12 +372,14 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 				// 	setRightBorder(value[1]);
 				// }}
 				value={[leftBorder, rightBorder]}
+				// value={dataSource.map((x) => x[XAxisDataKey])}
 				onChange={(value) => {
 					// console.log("value", value);
 					setLeftBorder(value[0]);
 					setRightBorder(value[1]);
 				}}
 			/>
+
 			<div style={{ display: "flex", justifyContent: "space-between" }}>
 				<InputNumber
 					min={defaultLeft}
@@ -360,6 +407,24 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 					}}
 				/>
 			</div>
+			<Checkbox
+				checked={showGraph1}
+				onChange={() => setShowGraph1((data) => !data)}
+			>
+				{YAxisDataKey_1}
+			</Checkbox>
+			<Checkbox
+				checked={showGraph2}
+				onChange={() => setShowGraph2((data) => !data)}
+			>
+				{YAxisDataKey_2}
+			</Checkbox>
+			<Checkbox
+				checked={showGraph3}
+				onChange={() => setShowGraph3((data) => !data)}
+			>
+				{YAxisDataKey_3}
+			</Checkbox>
 		</div>
 	);
 };
