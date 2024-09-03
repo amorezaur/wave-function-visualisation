@@ -76,7 +76,7 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 		};
 		if (e.target.files?.length) reader.readAsText(e.target.files[0]);
 	};
-
+	console.log("import.meta.env.REACT_APP_VERSION", import.meta.env.VITE_ENV);
 	return (
 		// <div>
 		// 	{/* <button
@@ -149,6 +149,7 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 			</Upload>
 			{fileName}
 			<Input />
+			{import.meta.env.VITE_ENV}
 		</Space>
 	);
 };
