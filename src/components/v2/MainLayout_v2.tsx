@@ -1,9 +1,9 @@
+import { Flex, Layout } from "antd";
 import React, { useState } from "react";
-import { Layout, Flex, Upload, Button, Space } from "antd";
 import "./styles.css";
-import WaveGraph, { PointCoordinates, WaveGraphProps } from "../WaveGraph";
-import { MenuFoldOutlined, MenuUnfoldOutlined, UploadOutlined } from "../Icons";
-import ReadFile2, { DataItem } from "./ReadFile2";
+import Example from "./Example";
+import ReadFile from "./ReadFile";
+import { PointCoordinates } from "./PointCoordinates";
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -19,7 +19,7 @@ const headerStyle: React.CSSProperties = {
 
 const contentStyle: React.CSSProperties = {
 	color: "#fff",
-	backgroundColor: "#0958d9",
+	backgroundColor: "lightgrey",
 };
 
 const siderStyle: React.CSSProperties = {
@@ -54,43 +54,19 @@ const layoutStyle = {
 	flex: 1,
 };
 
-const AntdLayout = () => {
-	const [collapsed, setCollapsed] = useState(true);
+const MainLayout_v2 = () => {
+	const [dataSource, setDataSource] = useState<PointCoordinates[]>([]);
 
-	const [dataSource, setDataSource] = useState<DataItem[]>([]);
-
-	const getFileData = (newData: DataItem[]) => {
+	const getFileData = (newData: PointCoordinates[]) => {
 		setDataSource(newData);
 	};
-
-	const waveGraphProps: WaveGraphProps = {
-		dataSource: dataSource,
-		numberOfPoints: 100,
-	};
-	const [jsonData, setJsonData] = useState<any>(null);
 
 	return (
 		<>
 			<Flex style={flexStyle}>
 				<Layout style={layoutStyle}>
 					<Header style={headerStyle}>
-						{/* <Space> */}
-						{/* <Button
-								className="siderTrigger"
-								// type="text"
-								icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-								onClick={() => setCollapsed(!collapsed)}
-								// style={{
-								// 	// fontSize: "16px",
-								// 	// width: 64,
-								// 	// height: 64,
-								// 	color: "red",
-								// 	backgroundColor: "white",
-								// }}
-							/> */}
-
-						<ReadFile2 getFileData={getFileData} />
-						{/* </Space> */}
+						<ReadFile getFileData={getFileData} />
 					</Header>
 					<Layout>
 						<Sider
@@ -103,10 +79,10 @@ const AntdLayout = () => {
 							collapsedWidth={0}
 							// zeroWidthTriggerStyle={siderTriggerStyle}
 						>
-							aaa
+							Ustawienia
 						</Sider>
 						<Content style={contentStyle}>
-							<WaveGraph props={waveGraphProps} />
+							{!!dataSource.length && <Example dataSource={dataSource} />}
 						</Content>
 					</Layout>
 					{/* <Footer style={footerStyle}>Footer</Footer> */}
@@ -116,4 +92,4 @@ const AntdLayout = () => {
 	);
 };
 
-export default AntdLayout;
+export default MainLayout_v2;
