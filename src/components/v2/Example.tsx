@@ -82,7 +82,7 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 	const [bottomBorder, setBottomBorder] = useState<number>(defaultBottom);
 	const [topBorder, setTopBorder] = useState<number>(defaultTop);
 
-	const [showGraph1, setShowGraph1] = useState<boolean>(true);
+	const [showGraph1, setShowGraph1] = useState < boolean(true);
 	const [showGraph2, setShowGraph2] = useState<boolean>(false);
 	const [showGraph3, setShowGraph3] = useState<boolean>(false);
 
