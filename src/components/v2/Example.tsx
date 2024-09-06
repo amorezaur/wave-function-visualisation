@@ -1,5 +1,5 @@
-import { Button, Checkbox, InputNumber, Slider } from "antd";
-import { useEffect, useState } from "react";
+import { Button, Checkbox, InputNumber, Slider } from 'antd';
+import { useEffect, useState } from 'react';
 import {
 	CartesianGrid,
 	Legend,
@@ -10,17 +10,17 @@ import {
 	Tooltip,
 	XAxis,
 	YAxis,
-} from "recharts";
-import { PointCoordinates } from "./PointCoordinates";
+} from 'recharts';
+import { PointCoordinates } from './PointCoordinates';
 
 interface ExampleProps {
 	dataSource: PointCoordinates[];
 }
 const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
-	const XAxisDataKey: keyof PointCoordinates = "r";
-	const YAxisDataKey_1: keyof PointCoordinates = "p(r)";
-	const YAxisDataKey_2: keyof PointCoordinates = "q(r)";
-	const YAxisDataKey_3: keyof PointCoordinates = "r";
+	const XAxisDataKey: keyof PointCoordinates = 'r';
+	const YAxisDataKey_1: keyof PointCoordinates = 'p(r)';
+	const YAxisDataKey_2: keyof PointCoordinates = 'q(r)';
+	const YAxisDataKey_3: keyof PointCoordinates = 'r';
 
 	const getAxisYDomain = (
 		from: string | number | undefined,
@@ -87,7 +87,7 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 	const [showGraph3, setShowGraph3] = useState<boolean>(false);
 
 	const onChange = (e: any) => {
-		console.log("e", e);
+		console.log('e', e);
 		setShowGraph1((data) => !data);
 	};
 	// const { left, right, refAreaLeft, refAreaRight, top, bottom, top2, bottom2 } =
@@ -380,7 +380,7 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 				}}
 			/>
 
-			<div style={{ display: "flex", justifyContent: "space-between" }}>
+			<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 				<InputNumber
 					min={defaultLeft}
 					max={defaultRight}
