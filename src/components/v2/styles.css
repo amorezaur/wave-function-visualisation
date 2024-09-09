@@ -22,6 +22,8 @@ body,
 	width: 100%;
 	margin: 0;
 	padding: 0;
+	/* Zapobiega pojawieniu się scrolla */
+	/* overflow: hidden; */
 }
 
 #root {
@@ -32,12 +34,16 @@ body,
 	display: flex;
 }
 .graphContainer {
+	display: flex;
+	flex-direction: column;
 	padding: 20px;
-	height: 87%;
+	/* margin: 20px; */
+	height: 100%;
+	border: 1px solid red;
 	/* width: 100%; */
 	/* margin: -6px 0; */
 	/* padding: 10px; */
-	/* background-color: lightblue; */
+	background-color: lightblue;
 }
 .blue {
 	width: 100%;

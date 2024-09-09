@@ -1,11 +1,15 @@
-import { Button, Checkbox, InputNumber, Slider } from 'antd';
+import { Button, Checkbox, InputNumber, message, Radio, Slider } from 'antd';
 import { useEffect, useState } from 'react';
 import {
 	CartesianGrid,
+	Dot,
+	Label,
 	Legend,
 	Line,
 	LineChart,
 	ReferenceArea,
+	ReferenceDot,
+	ReferenceLine,
 	ResponsiveContainer,
 	Tooltip,
 	XAxis,
@@ -17,275 +21,239 @@ interface ExampleProps {
 	dataSource: PointCoordinates[];
 }
 const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
+	const isDisabled: boolean = !initialDataSource.length;
+	let multiplier: number = 1;
+	const getMaxY = (data: PointCoordinates[]) => {
+		let result = Math.max(...data.map((x) => x[YAxisDataKey])) * multiplier;
+		return result;
+		return Math.ceil(result);
+		// return Math.abs(result) === 2 ? 'auto' : result;
+	};
+	const getMinY = (data: PointCoordinates[]) => {
+		let result = Math.min(...data.map((x) => x[YAxisDataKey])) * multiplier;
+		return result;
+		return Math.floor(result);
+		// return Math.abs(result) === 1 ? 'auto' : result;
+	};
+
 	const XAxisDataKey: keyof PointCoordinates = 'r';
 	const YAxisDataKey_1: keyof PointCoordinates = 'p(r)';
 	const YAxisDataKey_2: keyof PointCoordinates = 'q(r)';
 	const YAxisDataKey_3: keyof PointCoordinates = 'r';
-
-	const getAxisYDomain = (
-		from: string | number | undefined,
-		to: string | number | undefined,
-		ref: keyof PointCoordinates,
-		offset: number
-	) => {
-		const refData = dataSource.slice(Number(from) - 1, Number(to));
-		let [bottom, top] = [refData[0][ref], refData[0][ref]];
-		refData.forEach((d) => {
-			if (d[ref] > top) top = d[ref];
-			if (d[ref] < bottom) bottom = d[ref];
-		});
-
-		return [(bottom | 0) - offset, (top | 0) + offset];
-	};
-	// console.log("dataSource[0]", dataSource[10]);
-
-	// let aaa = Math.max(...dataSource.map((o) => o[YAxisDataKey_1]));
-	// console.log("aaa", aaa);
-
-	// let bbb = Math.min(...dataSource.map((o) => o[YAxisDataKey_1]));
-	// console.log("bbb", bbb);
-
-	// const initialState: {
-	// 	left: AxisDomainItem;
-	// 	right: AxisDomainItem;
-	// 	refAreaLeft: string | number | undefined;
-	// 	refAreaRight: string | number | undefined;
-	// 	top: AxisDomainItem;
-	// 	bottom: AxisDomainItem;
-	// 	top2: AxisDomainItem;
-	// 	bottom2: AxisDomainItem;
-	// 	animation: boolean;
-	// } = {
-	// 	left: 0,
-	// 	right: dataSource.length,
-	// 	refAreaLeft: "",
-	// 	refAreaRight: "",
-	// 	top: "dataMax+1",
-	// 	bottom: "dataMin-1",
-	// 	top2: "dataMax+20",
-	// 	bottom2: "dataMin-20",
-	// 	animation: true,
-	// };
-	// const [waveGraphState, setWaveGraphState] = useState(initialState);
+	const [YAxisDataKey, setYAxisDataKey] = useState<keyof PointCoordinates>(YAxisDataKey_1);
 
 	const [dataSource, setDataSource] = useState<PointCoordinates[]>([]);
-	const [refAreaLeft2, setRefAreaLeft2] = useState<number | undefined>();
-	const [refAreaRight2, setRefAreaRight2] = useState<number | undefined>();
+	const [selectedPoint, setSelectedPoint] = useState<PointCoordinates | undefined>();
+
 	const defaultLeft: number = initialDataSource?.[0]?.[XAxisDataKey];
-	// const defaultLeft: number = 0;
-	const defaultRight: number =
-		initialDataSource?.[initialDataSource.length - 1]?.[XAxisDataKey];
-	const defaultBottom: number = -10;
-	const defaultTop: number = 10;
+	const defaultRight: number = Math.floor(initialDataSource?.[initialDataSource.length - 1]?.[XAxisDataKey]);
+	const defaultBottom: number = getMinY(initialDataSource);
+	const defaultTop: number = getMaxY(initialDataSource);
 	const [leftBorder, setLeftBorder] = useState<number>(defaultLeft);
 	const [rightBorder, setRightBorder] = useState<number>(defaultRight);
 	const [bottomBorder, setBottomBorder] = useState<number>(defaultBottom);
 	const [topBorder, setTopBorder] = useState<number>(defaultTop);
 
-	const [showGraph1, setShowGraph1] = useState<boolean>(true);
+	const [showGraphTangent, setShowGraphTangent] = useState<boolean>(false);
+	const [showGraph1, setShowGraph1] = useState<boolean>(false);
 	const [showGraph2, setShowGraph2] = useState<boolean>(false);
 	const [showGraph3, setShowGraph3] = useState<boolean>(false);
 
-	const onChange = (e: any) => {
-		console.log('e', e);
-		setShowGraph1((data) => !data);
-	};
-	// const { left, right, refAreaLeft, refAreaRight, top, bottom, top2, bottom2 } =
-	// 	waveGraphState;
+	interface TangentCoefficients {
+		A: number;
+		B: number;
+		Zero: number;
+	}
+	const [tangentCoefficients, setTangentCoefficients] = useState<TangentCoefficients>();
+
+	useEffect(() => {
+		if (selectedPoint) {
+			if (selectedPoint.index !== dataSource[0].index && selectedPoint.index !== dataSource[dataSource.length - 1].index) {
+				let previousPoint = dataSource.find((x) => x.index === selectedPoint.index - 1)!;
+				let nextPoint = dataSource.find((x) => x.index === selectedPoint.index + 1)!;
+				let y1 = previousPoint[YAxisDataKey];
+				let y2 = nextPoint[YAxisDataKey];
+				let x1 = previousPoint[XAxisDataKey];
+				let x2 = nextPoint[XAxisDataKey];
+
+				let newA: number = (y1 - y2) / (x1 - x2);
+				let newB: number = y1 - newA * x1;
+				let tangentOfZero: number = -newB / newA;
+				setTangentCoefficients({ A: newA, B: newB, Zero: tangentOfZero });
+			} else {
+				message.warning('Wybrano skrajny punkt wykresu. Spróbuj ponownie.');
+			}
+		}
+	}, [selectedPoint]);
+
+	useEffect(() => {
+		setShowGraphTangent(!!tangentCoefficients);
+	}, [tangentCoefficients]);
 
 	useEffect(() => {
 		setDataSource(initialDataSource);
-		// console.log("dataSource?.length", dataSource?.length);
-		// if (dataSource) {
-		// 	const defaultLeft: number = dataSource?.[0]?.[XAxisDataKey];
-		// 	const defaultRight: number = dataSource?.[400]?.[XAxisDataKey];
-		// 	// dataSource?.[dataSource.length - 1]?.[XAxisDataKey];
-		// 	setLeftBorder(defaultLeft);
-		// 	setRightBorder(defaultRight);
-		// }
-		// // if (dataSource) setWaveGraphState(initialState);
-		// let aaa = Math.max(...dataSource.map((o) => o[YAxisDataKey_1]));
-		// console.log("aaa", aaa);
-		// let bbb = Math.min(...dataSource.map((o) => o[YAxisDataKey_1]));
-		// console.log("bbb", bbb);
-		// // setTopBorder(aaa);
-		// // setBottomBorder(bbb);
+		setLeftBorder(defaultLeft);
+		setRightBorder(defaultRight);
 	}, [initialDataSource]);
 
-	// useEffect(() => {
-	// 	// console.log("waveGraphState", waveGraphState);
-	// }, [waveGraphState]);
-
-	useEffect(() => {
-		// console.log("refAreaLeft2", refAreaLeft2);
-	}, [refAreaLeft2]);
-
-	useEffect(() => {
-		// console.log("refAreaRight2", refAreaRight2);
-	}, [refAreaRight2]);
-
-	// const zoom = () => {
-	// 	let { refAreaLeft, refAreaRight } = waveGraphState;
-
-	// 	if (refAreaLeft === refAreaRight || refAreaRight === "") {
-	// 		setWaveGraphState((data) => ({
-	// 			...data,
-	// 			refAreaLeft: "",
-	// 			refAreaRight: "",
-	// 		}));
-	// 		return;
-	// 	}
-
-	// 	if (refAreaLeft && refAreaRight) {
-	// 		// xAxis domain
-	// 		if (refAreaLeft > refAreaRight)
-	// 			[refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
-
-	// 		// yAxis domain
-	// 		const [bottom, top] = getAxisYDomain(
-	// 			refAreaLeft,
-	// 			refAreaRight,
-	// 			"p(r)",
-	// 			0
-	// 		);
-	// 		// const [bottom2, top2] = getAxisYDomain(
-	// 		// 	refAreaLeft,
-	// 		// 	refAreaRight,
-	// 		// 	"q(r)",
-	// 		// 	50
-	// 		// );
-
-	// 		setWaveGraphState((data) => ({
-	// 			...data,
-	// 			refAreaLeft: "",
-	// 			refAreaRight: "",
-	// 			dataSource: dataSource.slice(),
-	// 			left: refAreaLeft || "",
-	// 			right: refAreaRight || "",
-	// 			bottom: bottom,
-	// 			top: top,
-	// 			// bottom2: bottom2,
-	// 			// top2: top2,
-	// 		}));
-	// 	}
-	// };
 	const zoomOut = () => {
 		setLeftBorder(defaultLeft);
 		setRightBorder(defaultRight);
-		// setWaveGraphState(initialState);
-		// setWaveGraphState((data) => ({
-		// 	...data,
-		// 	dataSource: dataSource.slice(),
-		// 	refAreaLeft: "",
-		// 	refAreaRight: "",
-		// 	left: initialState.left,
-		// 	right: initialState.right,
-		// 	top: "dataMax+1",
-		// 	bottom: "dataMin",
-		// 	// top2: "dataMax+50",
-		// 	// bottom2: "dataMin+50",
-		// }));
 	};
 
 	useEffect(() => {
-		// const refData = dataSource.slice(Number(leftBorder), Number(rightBorder));
-		// console.log("refData", refData);
-
-		let indexStart = initialDataSource.findIndex(
-			(x) => x[XAxisDataKey] < leftBorder || x[XAxisDataKey] === leftBorder
+		console.log('leftBorder, rightBorder', leftBorder, rightBorder);
+		let indexStart = initialDataSource.findIndex((x) => Math.floor(x[XAxisDataKey]) === leftBorder);
+		// let aaa = initialDataSource.findIndex((x) => x[XAxisDataKey] >= rightBorder);
+		// let indexEnd = initialDataSource.findIndex((x) => x[XAxisDataKey] >= rightBorder);
+		// let indexEnd = initialDataSource.findIndex((x) => Math.floor(x[XAxisDataKey]) === rightBorder);
+		let indexEnd = initialDataSource.findIndex((x) => x[XAxisDataKey] >= rightBorder) + 1;
+		console.log('indexStart, indexEnd', indexStart, indexEnd);
+		console.log(
+			'initialDataSource.find((x) => x[XAxisDataKey] >= rightBorder)',
+			initialDataSource.find((x) => x[XAxisDataKey] >= rightBorder),
 		);
-		let indexEnd = initialDataSource.findIndex(
-			(x) => x[XAxisDataKey] > rightBorder || x[XAxisDataKey] === rightBorder
-		);
-		setDataSource(
-			initialDataSource.slice(indexStart, indexEnd + 1)
-			// initialDataSource.slice(Number(leftBorder), Number(rightBorder))
-		);
+		let dataSlice = initialDataSource.slice(indexStart, indexEnd);
+		setDataSource(dataSlice);
+		setBottomBorder(getMinY(dataSlice));
+		setTopBorder(getMaxY(dataSlice));
+	}, [initialDataSource, leftBorder, rightBorder, YAxisDataKey]);
 
-		// let [bottom, top] = [refData[0][ref], refData[0][ref]];
-		// refData.forEach((d) => {
-		// 	if (d[ref] > top) top = d[ref];
-		// 	if (d[ref] < bottom) bottom = d[ref];
-		// });
+	// const tangentFunction = (point: PointCoordinates) => {
+	// 	if (tangentCoefficients) {
+	// 		let result = tangentCoefficients.A * point[XAxisDataKey] + tangentCoefficients.B;
+	// 		if (result > bottomBorder && result < topBorder) {
+	// 			return result;
+	// 		}
+	// 	}
+	// 	return null;
+	// };
 
-		// return [(bottom | 0) - offset, (top | 0) + offset];
-	}, [leftBorder, rightBorder]);
+	// const ttt = Math.max(Math.abs(bottomBorder), Math.abs(topBorder));
 
+	const xMin = leftBorder;
+	const xMax = rightBorder;
+	const yMin = tangentCoefficients ? tangentCoefficients.A * leftBorder + tangentCoefficients.B : undefined;
+	const yMax = tangentCoefficients ? tangentCoefficients.A * rightBorder + tangentCoefficients.B : undefined;
+
+	const xZero = showGraphTangent && tangentCoefficients ? -tangentCoefficients.B / tangentCoefficients.A : undefined;
+
+	let aaa: React.CSSProperties = { border: '1px solid black', padding: '20px', backgroundColor: 'orange' };
 	return (
 		<div className="graphContainer">
-			<ResponsiveContainer>
+			<ResponsiveContainer style={{ ...aaa }}>
 				<LineChart
+					// style={{ border: '1px solid black', paddin: '40' }}
 					data={dataSource}
-					onMouseDown={(e) => {
-						// console.log("down", e, e.activeLabel);
-						// setWaveGraphState((data) => ({
-						// 	...data,
-						// 	refAreaLeft: e.activeLabel || "",
-						// }));
-						setRefAreaLeft2(Number(e.activeLabel));
+					onClick={(e) => {
+						setSelectedPoint(e.activePayload?.find((x) => x.name === YAxisDataKey).payload);
 					}}
-					onMouseMove={(e) => {
-						refAreaLeft2 && setRefAreaRight2(Number(e.activeLabel));
-						// waveGraphState.refAreaLeft &&
-						// setWaveGraphState((data) => ({
-						// 	...data,
-						// 	refAreaRight: e.activeLabel || "",
-						// }));
-					}}
-					onMouseUp={
-						(e) => {
-							if (refAreaLeft2 && refAreaRight2) {
-								setLeftBorder(
-									refAreaLeft2 < refAreaRight2 ? refAreaLeft2 : refAreaRight2
-								);
-								setRightBorder(
-									refAreaLeft2 < refAreaRight2 ? refAreaRight2 : refAreaLeft2
-								);
-								setRefAreaLeft2(undefined);
-								setRefAreaRight2(undefined);
-							}
-							// refAreaLeft2 && setRefAreaRight2(e.activeLabel || "");
-						}
-						// onMouseLeave={(e) => console.log("leave", e)}
-						// eslint-disable-next-line react/jsx-no-bind
-						// onMouseUp={zoom}
-						// onMouseUp={(e, aaa) => {
-						// 	console.log("up", e, e.activeLabel, aaa);
-						// 	setWaveGraphState((data) => ({
-						// 		...data,
-						// 		refAreaLeft: "",
-						// 		refAreaRight: "",
-						// 	}));
-					}
+					{...{ overflow: 'visible' }}
 				>
-					<Legend />
+					{/* <Legend /> */}
 
 					<CartesianGrid strokeDasharray="3 3" fill="white" />
-					<XAxis
-						// allowDataOverflow
-						dataKey={XAxisDataKey}
-						// domain={[0, 400]}
-						// domain={["dataMin", rightBorder]}
-						domain={[leftBorder, rightBorder]}
-						type="number"
-					/>
+					<XAxis dataKey={XAxisDataKey} domain={[leftBorder, rightBorder]} type="number">
+						<Label style={{ fontSize: '130%', fill: 'black' }} position="bottom" value={XAxisDataKey} />
+					</XAxis>
 					<Tooltip />
 
-					{refAreaLeft2 && refAreaRight2 ? (
-						<ReferenceArea
-							yAxisId="1"
-							x1={refAreaLeft2}
-							x2={refAreaRight2}
-							strokeOpacity={0.3}
-						/>
-					) : null}
+					{/* {refAreaLeft2 && refAreaRight2 ? (
+						<ReferenceArea yAxisId="1" x1={refAreaLeft2} x2={refAreaRight2} strokeOpacity={0.3} />
+					) : null} */}
 
 					{/* WYKRESY */}
 					{/* ----------------------------------------------------- */}
+
+					<Line name={YAxisDataKey} yAxisId={YAxisDataKey} type="monotone" dataKey={YAxisDataKey} stroke="blue" animationDuration={300} dot={false} />
+					<YAxis
+						yAxisId={YAxisDataKey}
+						// domain={[-ttt, ttt]}
+						// domain={[bottomBorder, topBorder]}
+						// domain={['dataMin', 'dataMax']}
+						// domain={['auto', 'auto']}
+						// allowDataOverflow
+						// tickFormatter={(value) => Number(value.toFixed(2))}
+					>
+						<Label
+							style={{
+								textAnchor: 'middle',
+								fontSize: '140%',
+								fill: 'black',
+							}}
+							angle={270}
+							position="insideLeft"
+							value={YAxisDataKey}
+						/>
+						{/* <Label angle={270} position="insideLeft" style={{ textAnchor: 'middle' }}>
+							Vertical Label!
+						</Label> */}
+						{/* <Label value="LBs" position="middle" offset={10} /> */}
+						{/* export type LabelPosition = 'top' | 'left' | 'right' | 'bottom' | 'inside' | 'outside' | 'insideLeft' |
+						 'insideRight' | 'insideTop' | 'insideBottom' | 'insideTopLeft' | 'insideBottomLeft' | 'insideTopRight' |
+						  'insideBottomRight' | 'insideStart' | 'insideEnd' | 'end' | 'center' | 'centerTop' | 'centerBottom' | 'middle' | { */}
+					</YAxis>
+					{/* <ReferenceLine yAxisId={YAxisDataKey} y={0} stroke="red" label="y=0" /> */}
+					{/* <ReferenceDot r={20} fill="red" stroke="none" x={0} y={3} /> */}
+					<ReferenceDot
+						yAxisId={YAxisDataKey}
+						x={xZero}
+						y={0}
+						r={3}
+						fill="red"
+						cursor={5}
+						label={{ position: 'top', value: xZero, fill: 'red', fontSize: 14 }}
+					/>
+
+					{/* <ReferenceLine
+						yAxisId={YAxisDataKey}
+						segment={[
+							{ x: leftBorder, y: -2 },
+							{ x: rightBorder, y: topBorder },
+						]}
+						stroke="green"
+						label="y = 2x"
+					/> */}
+					<ReferenceLine yAxisId={YAxisDataKey} y={0} stroke="red" strokeDasharray="3 3" />
+					{showGraphTangent && (
+						<ReferenceLine
+							yAxisId={YAxisDataKey}
+							segment={[
+								{ x: xMin, y: yMin },
+								{ x: xMax, y: yMax },
+							]}
+							stroke="green"
+							ifOverflow={'hidden'}
+						/>
+					)}
+
+					{showGraphTangent && (
+						<>
+							{/* <Line
+								name="styczna"
+								yAxisId={YAxisDataKey}
+								type="monotone"
+								dataKey={tangentFunction}
+								stroke="red"
+								animationDuration={300}
+								dot={false}
+							/> */}
+						</>
+					)}
+					{/* <Line
+						name={YAxisDataKey_1}
+						yAxisId={YAxisDataKey_1}
+						type="monotone"
+						dataKey={0}
+						stroke="black"
+						animationDuration={300}
+						dot={false}
+					/> */}
 					{showGraph1 && (
 						<>
 							<Line
-								yAxisId="1"
+								name={YAxisDataKey_1}
+								yAxisId={YAxisDataKey_1}
 								type="monotone"
 								dataKey={YAxisDataKey_1}
 								stroke="blue"
@@ -293,22 +261,23 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 								dot={false}
 							/>
 							<YAxis
-								// dataKey={YAxisDataKey_1}
-								// allowDataOverflow
-								// domain={[-10, 10]}
+								yAxisId={YAxisDataKey_1}
+								// domain={[-ttt, ttt]}
 								// domain={[bottomBorder, topBorder]}
-								// range={[bottom, top]}
-								// type="number"
-								stroke="blue"
-								yAxisId="1"
+								// domain={['dataMin', 'dataMax']}
+								// domain={['auto', 'auto']}
+								allowDataOverflow
+								// tickFormatter={(value) => Number(value.toFixed(2))}
 							/>
 						</>
 					)}
+
 					{/* ----------------------------------------------------- */}
 					{showGraph2 && (
 						<>
 							<Line
-								yAxisId="2"
+								name={YAxisDataKey_2}
+								yAxisId={YAxisDataKey_2}
 								type="natural"
 								dataKey={YAxisDataKey_2}
 								stroke="green"
@@ -321,7 +290,7 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 								// domain={[bottom2, top2]}
 								// type="number"
 								stroke="green"
-								yAxisId="2"
+								yAxisId={YAxisDataKey_2}
 							/>
 						</>
 					)}
@@ -329,7 +298,8 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 					{showGraph3 && (
 						<>
 							<Line
-								yAxisId="3"
+								name={YAxisDataKey_3}
+								yAxisId={YAxisDataKey_3}
 								type="natural"
 								dataKey={YAxisDataKey_3}
 								stroke="red"
@@ -342,89 +312,85 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 								// domain={[bottom2, top2]}
 								// type="number"
 								stroke="red"
-								yAxisId="3"
+								yAxisId={YAxisDataKey_3}
 							/>
 						</>
 					)}
 				</LineChart>
 			</ResponsiveContainer>
-			{/* <Slider
-				range
-				min={leftBorder}
-				max={rightBorder}
-				// value={[leftBorder, rightBorder]}
-				// defaultValue={[0, data.length]}
-				onChangeComplete={(value) => {
-					// console.log("value", value);
-					setLeftBorder(value[0]);
-					setRightBorder(value[1]);
-				}}
-				// tooltip={{ formatter: null,  }}
-			/> */}
-			<Slider
-				range
-				defaultValue={[defaultLeft, defaultRight]}
-				min={defaultLeft}
-				max={defaultRight}
-				// defaultValue={[0, data.length]}
-				// onChangeComplete={(value) => {
-				// 	setLeftBorder(value[0]);
-				// 	setRightBorder(value[1]);
-				// }}
-				value={[leftBorder, rightBorder]}
-				// value={dataSource.map((x) => x[XAxisDataKey])}
-				onChange={(value) => {
-					// console.log("value", value);
-					setLeftBorder(value[0]);
-					setRightBorder(value[1]);
-				}}
-			/>
 
-			<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-				<InputNumber
+			<div style={{ backgroundColor: 'pink', paddingLeft: 80, paddingRight: 20 }}>
+				<Slider
+					styles={{ track: { background: 'blue' } }}
+					disabled={isDisabled}
+					range={{ draggableTrack: true }}
+					defaultValue={[defaultLeft, defaultRight]}
 					min={defaultLeft}
-					max={defaultRight}
-					defaultValue={defaultLeft}
-					value={leftBorder}
-					onChange={(value) => {
-						if (value && value < rightBorder) {
-							setLeftBorder(value);
-						}
+					max={Math.floor(defaultRight)}
+					value={[leftBorder, rightBorder]}
+					onChange={(value: number[]) => {
+						console.log('value', value);
+						setLeftBorder(value[0]);
+						setRightBorder(value[1]);
 					}}
 				/>
-				<Button type="link" onClick={zoomOut}>
-					Reset
-				</Button>
-				<InputNumber
-					min={defaultLeft}
-					max={defaultRight}
-					defaultValue={defaultRight}
-					value={rightBorder}
-					onChange={(value) => {
-						if (value && value > leftBorder) {
-							setRightBorder(value);
-						}
+
+				<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+					<InputNumber
+						disabled={isDisabled}
+						min={defaultLeft}
+						max={defaultRight}
+						defaultValue={defaultLeft}
+						value={leftBorder}
+						onChange={(value) => {
+							if (value != undefined && value <= rightBorder) {
+								setLeftBorder(value);
+							}
+						}}
+					/>
+					<Button type="link" onClick={zoomOut} disabled={isDisabled}>
+						Reset
+					</Button>
+					<InputNumber
+						disabled={isDisabled}
+						min={defaultLeft}
+						max={defaultRight}
+						defaultValue={defaultRight}
+						value={rightBorder}
+						onChange={(value) => {
+							if (value != undefined && value >= leftBorder) {
+								setRightBorder(value);
+							}
+						}}
+					/>
+				</div>
+				<Checkbox checked={showGraphTangent} onChange={() => setShowGraphTangent((data) => !data)} disabled={!tangentCoefficients}>
+					{'styczna'}
+				</Checkbox>
+				{/* <Checkbox checked={showGraph1} onChange={() => setShowGraph1((data) => !data)}>
+					{YAxisDataKey_1}
+				</Checkbox>
+				<Checkbox checked={showGraph2} onChange={() => setShowGraph2((data) => !data)}>
+					{YAxisDataKey_2}
+				</Checkbox>
+				<Checkbox checked={showGraph3} onChange={() => setShowGraph3((data) => !data)}>
+					{YAxisDataKey_3}
+				</Checkbox> */}
+
+				<Radio.Group
+					disabled={isDisabled}
+					onChange={(e) => {
+						setYAxisDataKey(e.target.value);
+						setShowGraphTangent(false);
 					}}
-				/>
+					value={YAxisDataKey}
+				>
+					{/* YAxisDataKey4, setYAxisDataKey4 */}
+					<Radio value={YAxisDataKey_1}>{YAxisDataKey_1}</Radio>
+					<Radio value={YAxisDataKey_2}>{YAxisDataKey_2}</Radio>
+					<Radio value={YAxisDataKey_3}>{YAxisDataKey_3}</Radio>
+				</Radio.Group>
 			</div>
-			<Checkbox
-				checked={showGraph1}
-				onChange={() => setShowGraph1((data) => !data)}
-			>
-				{YAxisDataKey_1}
-			</Checkbox>
-			<Checkbox
-				checked={showGraph2}
-				onChange={() => setShowGraph2((data) => !data)}
-			>
-				{YAxisDataKey_2}
-			</Checkbox>
-			<Checkbox
-				checked={showGraph3}
-				onChange={() => setShowGraph3((data) => !data)}
-			>
-				{YAxisDataKey_3}
-			</Checkbox>
 		</div>
 	);
 };

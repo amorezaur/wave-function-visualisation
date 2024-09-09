@@ -14,13 +14,13 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 	const readFileTextContent = (text: string) => {
 		const dataColumnsCount: number = 3;
 
-		let initialPoint: PointCoordinates = {
-			count: 0,
-			r: 0,
-			'p(r)': 0,
-			'q(r)': 0,
-		};
-		let resultData: PointCoordinates[] = [initialPoint];
+		// let initialPoint: PointCoordinates = {
+		// 	count: 0,
+		// 	r: 0,
+		// 	'p(r)': 0,
+		// 	'q(r)': 0,
+		// };
+		let resultData: PointCoordinates[] = [];
 		// Podział tekstu na linie
 		let lines = text.split('\n');
 		//Pominięcie wierszy z komentarzami
@@ -30,7 +30,7 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 			let row = trimmedLine.split(/\s+/).map(Number);
 			if (row.length === dataColumnsCount) {
 				resultData.push({
-					count: index + 1,
+					index: index,
 					r: row[0],
 					'p(r)': row[1],
 					'q(r)': row[2],
@@ -76,9 +76,7 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 					</Button>
 				</Upload>
 				{fileName}
-				{import.meta.env.DEV && (
-					<Tag color="red-inverse">{import.meta.env.VITE_ENV}</Tag>
-				)}
+				{import.meta.env.DEV && <Tag color="red-inverse">{import.meta.env.VITE_ENV}</Tag>}
 			</Space>
 		</>
 	);

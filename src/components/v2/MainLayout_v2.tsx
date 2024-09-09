@@ -24,6 +24,11 @@ const headerStyle: React.CSSProperties = {
 const contentStyle: React.CSSProperties = {
 	color: '#fff',
 	backgroundColor: 'lightgrey',
+	// display: 'flex',
+	// width: '100%',
+	// height: '100%',
+	// paddingLeft: 20,
+	// paddingRight: 20,
 };
 
 const siderStyle: React.CSSProperties = {
@@ -54,8 +59,11 @@ const siderTriggerStyle: React.CSSProperties = {
 // };
 
 const layoutStyle = {
-	overflow: 'hidden',
-	flex: 1,
+	// overflow: 'hidden',
+	// flex: 1,
+	// display: 'flex',
+	// width: '100%',
+	// height: '90%',
 };
 
 const MainLayout_v2 = () => {
@@ -70,17 +78,14 @@ const MainLayout_v2 = () => {
 			<Flex style={flexStyle}>
 				<Layout style={layoutStyle}>
 					<Header style={headerStyle}>
-						<Typography.Title
-							style={{ color: 'white', marginTop: 0, marginBottom: 0 }}
-							level={3}
-						>
+						<Typography.Title style={{ color: 'white', marginTop: 0, marginBottom: 0 }} level={3}>
 							Wizualizacja funkcji falowej elektronu
 						</Typography.Title>
 						{/* <h1>asdasdasd</h1> */}
 
 						<ReadFile getFileData={getFileData} />
 					</Header>
-					<Layout>
+					<Layout style={layoutStyle}>
 						<Sider
 							width="25%"
 							// trigger={null}
@@ -93,9 +98,8 @@ const MainLayout_v2 = () => {
 						>
 							Ustawienia
 						</Sider>
-						<Content style={contentStyle}>
-							{!!dataSource.length && <Example dataSource={dataSource} />}
-						</Content>
+						<Content style={contentStyle}>{<Example dataSource={dataSource} />}</Content>
+						{/* <Content style={contentStyle}>{!!dataSource.length && <Example dataSource={dataSource} />}</Content> */}
 					</Layout>
 					{/* <Footer style={footerStyle}>Footer</Footer> */}
 				</Layout>
