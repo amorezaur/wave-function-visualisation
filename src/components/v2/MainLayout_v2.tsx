@@ -22,8 +22,8 @@ const headerStyle: React.CSSProperties = {
 };
 
 const contentStyle: React.CSSProperties = {
-	color: '#fff',
-	backgroundColor: 'lightgrey',
+	// color: '#fff',
+	backgroundColor: 'aliceblue',
 	// display: 'flex',
 	// width: '100%',
 	// height: '100%',
