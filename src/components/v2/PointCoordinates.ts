@@ -1,6 +1,6 @@
 export interface PointCoordinates {
-	count: number;
+	index: number;
 	r: number;
-	"p(r)": number;
-	"q(r)": number;
+	'p(r)': number;
+	'q(r)': number;
 }
