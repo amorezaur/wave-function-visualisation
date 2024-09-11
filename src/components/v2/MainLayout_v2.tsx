@@ -86,7 +86,7 @@ const MainLayout_v2 = () => {
 						<ReadFile getFileData={getFileData} />
 					</Header>
 					<Layout style={layoutStyle}>
-						<Sider
+						{/* <Sider
 							width="25%"
 							// trigger={null}
 							collapsible
@@ -97,7 +97,7 @@ const MainLayout_v2 = () => {
 							// zeroWidthTriggerStyle={siderTriggerStyle}
 						>
 							Ustawienia
-						</Sider>
+						</Sider> */}
 						<Content style={contentStyle}>{<Example dataSource={dataSource} />}</Content>
 						{/* <Content style={contentStyle}>{!!dataSource.length && <Example dataSource={dataSource} />}</Content> */}
 					</Layout>

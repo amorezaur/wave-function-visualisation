@@ -131,138 +131,147 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 
 	return (
 		<div className="graphContainer">
-			<ResponsiveContainer style={{ ...containerStyle }}>
-				<LineChart
-					data={dataSource}
-					onClick={(e) => setSelectedPoint(e.activePayload?.find((x) => x.name === YAxisDataKey).payload)}
-					{...{ overflow: 'visible' }}
-				>
-					{/* <Legend /> */}
+			{!isDisabled && (
+				<>
+					<ResponsiveContainer style={{ ...containerStyle }}>
+						<LineChart
+							data={dataSource}
+							onClick={(e) => setSelectedPoint(e.activePayload?.find((x) => x.name === YAxisDataKey).payload)}
+							{...{ overflow: 'visible' }}
+						>
+							{/* <Legend /> */}
 
-					<CartesianGrid strokeDasharray="3 3" fill="white" />
+							<CartesianGrid strokeDasharray="3 3" fill="white" />
 
-					{/* Oś X */}
-					<XAxis dataKey={XAxisDataKey} domain={[leftBorder, rightBorder]} type="number">
-						<Label style={{ fontSize: '130%', fill: 'black' }} position="bottom" value={XAxisDataKey} />
-					</XAxis>
+							{/* Oś X */}
+							<XAxis dataKey={XAxisDataKey} domain={[leftBorder, rightBorder]} type="number">
+								<Label style={{ fontSize: '130%', fill: 'black' }} position="bottom" value={XAxisDataKey} />
+							</XAxis>
 
-					{/* Podpowiedź */}
-					<Tooltip />
+							{/* Podpowiedź */}
+							{!isDisabled && <Tooltip />}
+							{/* Wykres */}
+							<Line
+								name={YAxisDataKey}
+								yAxisId={YAxisDataKey}
+								type="monotone"
+								dataKey={YAxisDataKey}
+								stroke="blue"
+								animationDuration={300}
+								dot={false}
+							/>
 
-					{/* Wykres */}
-					<Line name={YAxisDataKey} yAxisId={YAxisDataKey} type="monotone" dataKey={YAxisDataKey} stroke="blue" animationDuration={300} dot={false} />
+							{/* Oś Y */}
+							<YAxis
+								yAxisId={YAxisDataKey}
+								// domain={[-ttt, ttt]}
+								// domain={[bottomBorder, topBorder]}
+								// domain={['dataMin', 'dataMax']}
+								// domain={['auto', 'auto']}
+								// allowDataOverflow
+								// tickFormatter={(value) => Number(value.toFixed(2))}
+							>
+								<Label
+									style={{
+										textAnchor: 'middle',
+										fontSize: '140%',
+										fill: 'black',
+									}}
+									angle={270}
+									offset={0}
+									position="insideLeft"
+									value={YAxisDataKey}
+								/>
+							</YAxis>
 
-					{/* Oś Y */}
-					<YAxis
-						yAxisId={YAxisDataKey}
-						// domain={[-ttt, ttt]}
-						// domain={[bottomBorder, topBorder]}
-						// domain={['dataMin', 'dataMax']}
-						// domain={['auto', 'auto']}
-						// allowDataOverflow
-						// tickFormatter={(value) => Number(value.toFixed(2))}
-					>
-						<Label
-							style={{
-								textAnchor: 'middle',
-								fontSize: '140%',
-								fill: 'black',
-							}}
-							angle={270}
-							offset={0}
-							position="insideLeft"
-							value={YAxisDataKey}
-						/>
-					</YAxis>
+							{/* Punkt y=0 */}
+							<ReferenceDot
+								yAxisId={YAxisDataKey}
+								x={xZero}
+								y={0}
+								r={3}
+								fill="red"
+								cursor={5}
+								label={{ position: 'top', value: xZero, fill: 'red', fontSize: 14 }}
+							/>
 
-					{/* Punkt y=0 */}
-					<ReferenceDot
-						yAxisId={YAxisDataKey}
-						x={xZero}
-						y={0}
-						r={3}
-						fill="red"
-						cursor={5}
-						label={{ position: 'top', value: xZero, fill: 'red', fontSize: 14 }}
-					/>
+							{/* Prosta y=0 */}
+							<ReferenceLine yAxisId={YAxisDataKey} y={0} stroke="red" strokeDasharray="3 3" />
 
-					{/* Prosta y=0 */}
-					<ReferenceLine yAxisId={YAxisDataKey} y={0} stroke="red" strokeDasharray="3 3" />
+							{/* Styczna */}
+							{showGraphTangent && (
+								<ReferenceLine
+									yAxisId={YAxisDataKey}
+									segment={[
+										{ x: xMin, y: yMin },
+										{ x: xMax, y: yMax },
+									]}
+									stroke="green"
+									ifOverflow={'hidden'}
+								/>
+							)}
+						</LineChart>
+					</ResponsiveContainer>
 
-					{/* Styczna */}
-					{showGraphTangent && (
-						<ReferenceLine
-							yAxisId={YAxisDataKey}
-							segment={[
-								{ x: xMin, y: yMin },
-								{ x: xMax, y: yMax },
-							]}
-							stroke="green"
-							ifOverflow={'hidden'}
-						/>
-					)}
-				</LineChart>
-			</ResponsiveContainer>
-
-			<div style={{ backgroundColor: '', paddingLeft: 60 + paddingX, paddingRight: paddingX, paddingBottom: 20 }}>
-				<Slider
-					styles={{ track: { background: 'blue' } }}
-					disabled={isDisabled}
-					range={{ draggableTrack: true }}
-					defaultValue={[defaultLeft, defaultRight]}
-					min={defaultLeft}
-					max={Math.floor(defaultRight)}
-					value={[leftBorder, rightBorder]}
-					onChange={(value: number[]) => {
-						setLeftBorder(value[0]);
-						setRightBorder(value[1]);
-					}}
-				/>
-
-				<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-					<InputNumber
-						className="inputAddon"
-						// addonBefore={<div style={{ backgroundColor: 'grey' }}>"Zakres od"</div>}
-						addonBefore="Zakres od"
-						step="0.01"
-						disabled={isDisabled}
-						min={defaultLeft}
-						max={defaultRight}
-						defaultValue={defaultLeft}
-						value={leftBorder}
-						changeOnWheel
-						onChange={(value) => {
-							if (value != undefined && value <= rightBorder) {
-								setLeftBorder(value);
-							}
-						}}
-					/>
-					<Button type="link" onClick={reset} disabled={isDisabled}>
-						Reset
-					</Button>
-					<div>
-						<InputNumber
-							className="inputAddon"
-							addonBefore="Zakres do"
-							step="0.01"
+					<div style={{ backgroundColor: '', paddingLeft: 60 + paddingX, paddingRight: paddingX, paddingBottom: 20 }}>
+						<Slider
+							styles={{ track: { background: 'blue' } }}
 							disabled={isDisabled}
+							range={{ draggableTrack: true }}
+							defaultValue={[defaultLeft, defaultRight]}
 							min={defaultLeft}
-							max={defaultRight}
-							defaultValue={defaultRight}
-							value={rightBorder}
-							changeOnWheel
-							onChange={(value) => {
-								if (value != undefined && value >= leftBorder) {
-									setRightBorder(value);
-								}
+							max={Math.floor(defaultRight)}
+							value={[leftBorder, rightBorder]}
+							onChange={(value: number[]) => {
+								setLeftBorder(value[0]);
+								setRightBorder(value[1]);
 							}}
 						/>
-					</div>
-				</div>
-				<Checkbox checked={showGraphTangent} onChange={() => setShowGraphTangent((data) => !data)} disabled={!tangentCoefficients}>
-					{'styczna'}
-				</Checkbox>
-				{/* <Checkbox checked={showGraph1} onChange={() => setShowGraph1((data) => !data)}>
+
+						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+							<InputNumber
+								className="inputAddon"
+								// addonBefore={<div style={{ backgroundColor: 'grey' }}>"Zakres od"</div>}
+								addonBefore="Zakres od"
+								step="0.01"
+								disabled={isDisabled}
+								min={defaultLeft}
+								max={defaultRight}
+								defaultValue={defaultLeft}
+								value={leftBorder}
+								changeOnWheel
+								onChange={(value) => {
+									if (value != undefined && value <= rightBorder) {
+										setLeftBorder(value);
+									}
+								}}
+							/>
+							<Button type="link" onClick={reset} disabled={isDisabled}>
+								Reset
+							</Button>
+							<div>
+								<InputNumber
+									className="inputAddon"
+									addonBefore="Zakres do"
+									step="0.01"
+									disabled={isDisabled}
+									min={defaultLeft}
+									max={defaultRight}
+									defaultValue={defaultRight}
+									value={rightBorder}
+									changeOnWheel
+									onChange={(value) => {
+										if (value != undefined && value >= leftBorder) {
+											setRightBorder(value);
+										}
+									}}
+								/>
+							</div>
+						</div>
+						<Checkbox checked={showGraphTangent} onChange={() => setShowGraphTangent((data) => !data)} disabled={!tangentCoefficients}>
+							{'styczna'}
+						</Checkbox>
+						{/* <Checkbox checked={showGraph1} onChange={() => setShowGraph1((data) => !data)}>
 					{YAxisDataKey_1}
 				</Checkbox>
 				<Checkbox checked={showGraph2} onChange={() => setShowGraph2((data) => !data)}>
@@ -272,20 +281,22 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 					{YAxisDataKey_3}
 				</Checkbox> */}
 
-				<Radio.Group
-					disabled={isDisabled}
-					onChange={(e) => {
-						setYAxisDataKey(e.target.value);
-						setShowGraphTangent(false);
-					}}
-					value={YAxisDataKey}
-				>
-					{/* YAxisDataKey4, setYAxisDataKey4 */}
-					<Radio value={YAxisDataKey_1}>{YAxisDataKey_1}</Radio>
-					<Radio value={YAxisDataKey_2}>{YAxisDataKey_2}</Radio>
-					<Radio value={YAxisDataKey_3}>{YAxisDataKey_3}</Radio>
-				</Radio.Group>
-			</div>
+						<Radio.Group
+							disabled={isDisabled}
+							onChange={(e) => {
+								setYAxisDataKey(e.target.value);
+								setShowGraphTangent(false);
+							}}
+							value={YAxisDataKey}
+						>
+							{/* YAxisDataKey4, setYAxisDataKey4 */}
+							<Radio value={YAxisDataKey_1}>{YAxisDataKey_1}</Radio>
+							<Radio value={YAxisDataKey_2}>{YAxisDataKey_2}</Radio>
+							<Radio value={YAxisDataKey_3}>{YAxisDataKey_3}</Radio>
+						</Radio.Group>
+					</div>
+				</>
+			)}
 		</div>
 	);
 };
