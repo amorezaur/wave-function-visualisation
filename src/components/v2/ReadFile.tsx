@@ -4,6 +4,7 @@ import { Button, Input, Space, Tag, Typography, Upload } from 'antd';
 import { UploadOutlined } from '../../assets/Icons';
 import { RcFile } from 'antd/es/upload';
 import { config } from '../../config';
+import { testTextData } from '../../data/testData';
 
 interface ReadFileProps {
 	getFileData: (newData: PointCoordinates[]) => void;
@@ -52,10 +53,7 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 	};
 
 	const useTestData = () => {
-		let filePath: string = 'src\\data\\testData.csp';
-		fetch(filePath)
-			.then((response) => response.text())
-			.then((text) => readFileTextContent(text));
+		readFileTextContent(testTextData);
 	};
 
 	useEffect(() => {

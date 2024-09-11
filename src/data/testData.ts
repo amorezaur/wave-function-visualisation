@@ -1,4 +1,4 @@
-  # COWF continuum spinor output file opened at 17:16:43 on Jan 02 2024.
+export const testTextData = ` # COWF continuum spinor output file opened at 17:16:43 on Jan 02 2024.
   # mtp, kappa, energy (Hartree)
   #        20000          -1   3.6749308732640483E-005
   # phase shift
@@ -20004,3 +20004,4 @@
    14322.845285500156        1.5313514542384699        1.6567735108938066E-004
    14323.577419024916        1.5646437150781831        1.6536495834463009E-004
    14324.309552587929        1.5978743360682270        1.6504605163615937E-004
+`
