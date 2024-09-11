@@ -51,18 +51,23 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 		reader.readAsText(file);
 	};
 
+	const useTestData = () => {
+		let filePath: string = 'src\\data\\testData.csp';
+		fetch(filePath)
+			.then((response) => response.text())
+			.then((text) => readFileTextContent(text));
+	};
+
 	useEffect(() => {
 		if (config.useInitialData) {
-			let filePath: string = 'src\\data\\testData.csp';
-			fetch(filePath)
-				.then((response) => response.text())
-				.then((text) => readFileTextContent(text));
+			useTestData();
 		}
 	}, []);
 
 	return (
 		<>
 			<Space>
+				<Button onClick={useTestData}>Wczytaj przykładowe dane</Button>
 				<Upload
 					multiple={false}
 					showUploadList={false}
