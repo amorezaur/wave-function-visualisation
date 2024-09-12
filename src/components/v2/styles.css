@@ -78,7 +78,7 @@ body,
 }
 
 .inputAddon .ant-input-number-group-addon {
-	background-color: lightgrey;
+	background-color: rgba(0, 0, 0, 0.1);
 }
 
 .blinkingBorder {
@@ -92,4 +92,29 @@ body,
 		border-color: #fff;
 		box-shadow: none;
 	}
+}
+
+.settings {
+	/* background-color: #333; */
+	/* margin: 20px; */
+	padding: 10px;
+
+	/* padding: 10; */
+
+	height: '100%';
+	/* overflow-y: 'auto'; */
+	/* border-radius: 12px; */
+}
+
+.settings .ant-descriptions
+/* .settings .ant-descriptions-title */
+/* .settings .ant-descriptions-item-label,
+.settings .ant-descriptions-item-content */ {
+	background-color: white;
+	border-radius: 10px;
+	padding: 20px;
+}
+
+.settings .ant-descriptions-item-label {
+	background-color: rgba(0, 0, 0, 0.05) !important;
 }
