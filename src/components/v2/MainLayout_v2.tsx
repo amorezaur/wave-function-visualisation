@@ -78,7 +78,7 @@ const MainLayout_v2 = () => {
 			<Flex style={flexStyle}>
 				<Layout style={layoutStyle}>
 					<Header style={headerStyle}>
-						<Typography.Title style={{ color: 'white', marginTop: 0, marginBottom: 0 }} level={3}>
+						<Typography.Title style={{ color: 'white', marginTop: 0, marginBottom: 0, wordBreak: 'normal' }} level={3}>
 							Wizualizacja funkcji falowej elektronu
 						</Typography.Title>
 						{/* <h1>asdasdasd</h1> */}
