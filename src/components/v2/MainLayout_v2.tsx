@@ -1,17 +1,21 @@
-import { Flex, Layout, Typography } from 'antd';
-import React, { useState } from 'react';
+import { Button, Drawer, Flex, Layout, Space, Tooltip, Typography } from 'antd';
+import React, { CSSProperties, useState } from 'react';
 import './styles.css';
 import Example from './Example';
 import ReadFile from './ReadFile';
 import { PointCoordinates } from './PointCoordinates';
+import Settings, { Configuration, defaultSettings } from './Settings';
+import { MenuFoldOutlined, MenuOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 
 const { Header, Footer, Sider, Content } = Layout;
 
-const flexStyle: React.CSSProperties = {
+const flexStyle: CSSProperties = {
 	textAlign: 'center',
 	flex: 1,
+	flexDirection: 'column',
+	// height: '100%',
 };
-const headerStyle: React.CSSProperties = {
+const headerStyle: CSSProperties = {
 	color: 'white',
 	backgroundColor: 'darkblue',
 	textAlign: 'left',
@@ -21,7 +25,7 @@ const headerStyle: React.CSSProperties = {
 	alignItems: 'center',
 };
 
-const contentStyle: React.CSSProperties = {
+const contentStyle: CSSProperties = {
 	// color: '#fff',
 	backgroundColor: 'aliceblue',
 	// display: 'flex',
@@ -31,10 +35,15 @@ const contentStyle: React.CSSProperties = {
 	// paddingRight: 20,
 };
 
-const siderStyle: React.CSSProperties = {
-	lineHeight: '120px',
-	color: '#fff',
-	// backgroundColor: "#1677ff",
+const siderStyle: CSSProperties = {
+	overflowY: 'auto',
+	overflowX: 'hidden',
+	// width: 'min-content',
+
+	// lineHeight: '120px',
+	// color: '#fff',
+	// backgroundColor: '#1677ff',
+	// borderRight: '5px solid black',
 	// overflow: "auto",
 	// height: "100vh",
 	// position: "sticky",
@@ -42,13 +51,9 @@ const siderStyle: React.CSSProperties = {
 	// left: 0,
 };
 
-const footerStyle: React.CSSProperties = {
+const footerStyle: CSSProperties = {
 	color: '#fff',
 	backgroundColor: 'red',
-};
-const siderTriggerStyle: React.CSSProperties = {
-	top: '10px',
-	// backgroundColor: "red",
 };
 
 // const layoutStyle = {
@@ -58,7 +63,8 @@ const siderTriggerStyle: React.CSSProperties = {
 // 	// maxWidth: "calc(50% - 8px)",
 // };
 
-const layoutStyle = {
+const layoutStyle: CSSProperties = {
+	// border: '2px solid red',
 	// overflow: 'hidden',
 	// flex: 1,
 	// display: 'flex',
@@ -68,6 +74,8 @@ const layoutStyle = {
 
 const MainLayout_v2 = () => {
 	const [dataSource, setDataSource] = useState<PointCoordinates[]>([]);
+	const [settings, setSettings] = useState<Configuration>(defaultSettings);
+	const [collapsed, setCollapsed] = useState<boolean>(false);
 
 	const getFileData = (newData: PointCoordinates[]) => {
 		setDataSource(newData);
@@ -81,25 +89,16 @@ const MainLayout_v2 = () => {
 						<Typography.Title style={{ color: 'white', marginTop: 0, marginBottom: 0, wordBreak: 'normal' }} level={3}>
 							Wizualizacja funkcji falowej elektronu
 						</Typography.Title>
-						{/* <h1>asdasdasd</h1> */}
-
-						<ReadFile getFileData={getFileData} />
+						<Space>
+							<ReadFile getFileData={getFileData} />
+							<Button onClick={() => setCollapsed((prev) => !prev)}>{collapsed ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}</Button>
+						</Space>
 					</Header>
 					<Layout style={layoutStyle}>
-						{/* <Sider
-							width="25%"
-							// trigger={null}
-							collapsible
-							// collapsed={collapsed}
-							defaultCollapsed
-							style={siderStyle}
-							collapsedWidth={0}
-							// zeroWidthTriggerStyle={siderTriggerStyle}
-						>
-							Ustawienia
-						</Sider> */}
-						<Content style={contentStyle}>{<Example dataSource={dataSource} />}</Content>
-						{/* <Content style={contentStyle}>{!!dataSource.length && <Example dataSource={dataSource} />}</Content> */}
+						<Content style={contentStyle}>{<Example dataSource={dataSource} settings={settings} setSettings={setSettings} />}</Content>
+						<Sider width="25%" collapsed={collapsed} style={siderStyle} collapsedWidth={0}>
+							<Settings settings={settings} setSettings={setSettings} />
+						</Sider>
 					</Layout>
 					{/* <Footer style={footerStyle}>Footer</Footer> */}
 				</Layout>

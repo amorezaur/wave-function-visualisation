@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { PointCoordinates } from './PointCoordinates';
-import { Button, Input, Space, Tag, Typography, Upload } from 'antd';
-import { UploadOutlined } from '../../assets/Icons';
+import { Button, message, Space, Tag, Upload } from 'antd';
 import { RcFile } from 'antd/es/upload';
+import { useEffect, useState } from 'react';
+import { UploadOutlined } from '../../assets/Icons';
 import { config } from '../../config';
 import { testTextData } from '../../data/testData';
+import { PointCoordinates } from './PointCoordinates';
 
 interface ReadFileProps {
 	getFileData: (newData: PointCoordinates[]) => void;
 }
 const ReadFile = ({ getFileData }: ReadFileProps) => {
-	const [fileName, setFileName] = useState<string | null>(null);
+	const [fileName, setFileName] = useState<string>();
 
-	const readFileTextContent = (text: string) => {
+	const readFileTextContent = (text: string, newFileName?: string) => {
 		const dataColumnsCount: number = 3;
 
 		// let initialPoint: PointCoordinates = {
@@ -38,16 +38,20 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 				});
 			}
 		});
+		if (resultData.length) {
+			setFileName(newFileName);
+		} else {
+			message.warning('Niepoprawny plik');
+			setFileName(undefined);
+		}
 		getFileData(resultData);
 	};
 
 	const readFile = (file: RcFile) => {
-		setFileName(file.name); // Zapisanie nazwy pliku
-
 		const reader = new FileReader();
 		reader.onload = (e: ProgressEvent<FileReader>) => {
 			const text = e.target?.result as string;
-			readFileTextContent(text);
+			readFileTextContent(text, file.name);
 		};
 		reader.readAsText(file);
 	};

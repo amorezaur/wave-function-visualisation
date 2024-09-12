@@ -1,5 +1,5 @@
 import { Button, Checkbox, InputNumber, message, Radio, Slider } from 'antd';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
 	CartesianGrid,
 	Dot,
@@ -16,31 +16,34 @@ import {
 	YAxis,
 } from 'recharts';
 import { PointCoordinates } from './PointCoordinates';
+import Settings, { Configuration } from './Settings';
 
+export interface TangentCoefficients {
+	A: number;
+	B: number;
+	Zero: number;
+}
 interface ExampleProps {
 	dataSource: PointCoordinates[];
+	settings: Configuration;
+	setSettings: Dispatch<SetStateAction<Configuration>>;
 }
-const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
+const Example = ({ dataSource: initialDataSource, settings, setSettings }: ExampleProps) => {
+	const { YAxisDataKey, XAxisDataKey, showGraphTangent, tangentCoefficients } = settings;
 	const isDisabled: boolean = !initialDataSource.length;
-	let multiplier: number = 1;
-	const getMaxY = (data: PointCoordinates[]) => {
-		let result = Math.max(...data.map((x) => x[YAxisDataKey])) * multiplier;
-		return result;
-		return Math.ceil(result);
-		// return Math.abs(result) === 2 ? 'auto' : result;
-	};
-	const getMinY = (data: PointCoordinates[]) => {
-		let result = Math.min(...data.map((x) => x[YAxisDataKey])) * multiplier;
-		return result;
-		return Math.floor(result);
-		// return Math.abs(result) === 1 ? 'auto' : result;
-	};
-
-	const XAxisDataKey: keyof PointCoordinates = 'r';
-	const YAxisDataKey_1: keyof PointCoordinates = 'p(r)';
-	const YAxisDataKey_2: keyof PointCoordinates = 'q(r)';
-	const YAxisDataKey_3: keyof PointCoordinates = 'r';
-	const [YAxisDataKey, setYAxisDataKey] = useState<keyof PointCoordinates>(YAxisDataKey_1);
+	// let multiplier: number = 1;
+	// const getMaxY = (data: PointCoordinates[]) => {
+	// 	let result = Math.max(...data.map((x) => x[YAxisDataKey])) * multiplier;
+	// 	return result;
+	// 	return Math.ceil(result);
+	// 	// return Math.abs(result) === 2 ? 'auto' : result;
+	// };
+	// const getMinY = (data: PointCoordinates[]) => {
+	// 	let result = Math.min(...data.map((x) => x[YAxisDataKey])) * multiplier;
+	// 	return result;
+	// 	return Math.floor(result);
+	// 	// return Math.abs(result) === 1 ? 'auto' : result;
+	// };
 
 	const [dataSource, setDataSource] = useState<PointCoordinates[]>([]);
 	const [selectedPoint, setSelectedPoint] = useState<PointCoordinates | undefined>();
@@ -50,23 +53,14 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 	const [leftBorder, setLeftBorder] = useState<number>(defaultLeft);
 	const [rightBorder, setRightBorder] = useState<number>(defaultRight);
 
-	const [showGraphTangent, setShowGraphTangent] = useState<boolean>(false);
-
-	interface TangentCoefficients {
-		A: number;
-		B: number;
-		Zero: number;
-	}
-	const [tangentCoefficients, setTangentCoefficients] = useState<TangentCoefficients>();
-
 	useEffect(() => {
 		if (selectedPoint) {
 			// if (selectedPoint.index !== dataSource[0].index && selectedPoint.index !== dataSource[dataSource.length - 1].index) {
 			let previousPoint = initialDataSource.find((x) => x.index === selectedPoint.index - 1);
 			let nextPoint = initialDataSource.find((x) => x.index === selectedPoint.index + 1);
 
-			console.log('previousPoint', previousPoint);
-			console.log('nextPoint', nextPoint);
+			// console.log('previousPoint', previousPoint);
+			// console.log('nextPoint', nextPoint);
 			if (previousPoint && nextPoint) {
 				let y1 = previousPoint[YAxisDataKey];
 				let y2 = nextPoint[YAxisDataKey];
@@ -76,7 +70,7 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 				let newA: number = (y1 - y2) / (x1 - x2);
 				let newB: number = y1 - newA * x1;
 				let tangentOfZero: number = -newB / newA;
-				setTangentCoefficients({ A: newA, B: newB, Zero: tangentOfZero });
+				setSettings((data): Configuration => ({ ...data, tangentCoefficients: { A: newA, B: newB, Zero: tangentOfZero } }));
 			} else {
 				message.warning('Nie udało się wyznaczyć stycznej. Wybierz inny punkt wykresu.');
 			}
@@ -84,19 +78,15 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 	}, [selectedPoint]);
 
 	useEffect(() => {
-		setShowGraphTangent(!!tangentCoefficients);
-	}, [tangentCoefficients]);
-
-	useEffect(() => {
 		setDataSource(initialDataSource);
 		setLeftBorder(defaultLeft);
 		setRightBorder(defaultRight);
-	}, [initialDataSource, YAxisDataKey]);
+	}, [initialDataSource, YAxisDataKey, XAxisDataKey]);
 
 	const reset = () => {
 		setLeftBorder(defaultLeft);
 		setRightBorder(defaultRight);
-		setTangentCoefficients(undefined);
+		setSettings((data): Configuration => ({ ...data, tangentCoefficients: undefined }));
 	};
 
 	useEffect(() => {
@@ -106,28 +96,16 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 		setDataSource(dataSlice);
 	}, [leftBorder, rightBorder]);
 
-	// const tangentFunction = (point: PointCoordinates) => {
-	// 	if (tangentCoefficients) {
-	// 		let result = tangentCoefficients.A * point[XAxisDataKey] + tangentCoefficients.B;
-	// 		if (result > bottomBorder && result < topBorder) {
-	// 			return result;
-	// 		}
-	// 	}
-	// 	return null;
-	// };
-
-	// const ttt = Math.max(Math.abs(bottomBorder), Math.abs(topBorder));
-
 	const xMin = leftBorder;
 	const xMax = rightBorder;
 	const yMin = tangentCoefficients ? tangentCoefficients.A * leftBorder + tangentCoefficients.B : undefined;
 	const yMax = tangentCoefficients ? tangentCoefficients.A * rightBorder + tangentCoefficients.B : undefined;
 
-	const xZero = showGraphTangent && tangentCoefficients ? -tangentCoefficients.B / tangentCoefficients.A : undefined;
+	const xZero = showGraphTangent && tangentCoefficients ? tangentCoefficients.Zero : undefined;
 
 	const paddingX: number = 30;
 	const paddingY: number = 20;
-	let containerStyle: React.CSSProperties = { border: '1px solid black', padding: `${paddingY}px ${paddingX}px`, backgroundColor: 'lavender' };
+	let containerStyle: React.CSSProperties = { borderBottom: '1px solid black', padding: `${paddingY}px ${paddingX}px`, backgroundColor: 'lavender' };
 
 	return (
 		<div className="graphContainer">
@@ -220,7 +198,7 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 							range={{ draggableTrack: true }}
 							defaultValue={[defaultLeft, defaultRight]}
 							min={defaultLeft}
-							max={Math.floor(defaultRight)}
+							max={defaultRight}
 							value={[leftBorder, rightBorder]}
 							onChange={(value: number[]) => {
 								setLeftBorder(value[0]);
@@ -268,32 +246,6 @@ const Example = ({ dataSource: initialDataSource }: ExampleProps) => {
 								/>
 							</div>
 						</div>
-						<Checkbox checked={showGraphTangent} onChange={() => setShowGraphTangent((data) => !data)} disabled={!tangentCoefficients}>
-							{'styczna'}
-						</Checkbox>
-						{/* <Checkbox checked={showGraph1} onChange={() => setShowGraph1((data) => !data)}>
-					{YAxisDataKey_1}
-				</Checkbox>
-				<Checkbox checked={showGraph2} onChange={() => setShowGraph2((data) => !data)}>
-					{YAxisDataKey_2}
-				</Checkbox>
-				<Checkbox checked={showGraph3} onChange={() => setShowGraph3((data) => !data)}>
-					{YAxisDataKey_3}
-				</Checkbox> */}
-
-						<Radio.Group
-							disabled={isDisabled}
-							onChange={(e) => {
-								setYAxisDataKey(e.target.value);
-								setShowGraphTangent(false);
-							}}
-							value={YAxisDataKey}
-						>
-							{/* YAxisDataKey4, setYAxisDataKey4 */}
-							<Radio value={YAxisDataKey_1}>{YAxisDataKey_1}</Radio>
-							<Radio value={YAxisDataKey_2}>{YAxisDataKey_2}</Radio>
-							<Radio value={YAxisDataKey_3}>{YAxisDataKey_3}</Radio>
-						</Radio.Group>
 					</div>
 				</>
 			)}
