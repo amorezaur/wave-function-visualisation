@@ -2,5 +2,5 @@ interface Config {
 	useInitialData: boolean;
 }
 export const config: Config = {
-	useInitialData: false,
+	useInitialData: true && import.meta.env.DEV,
 };

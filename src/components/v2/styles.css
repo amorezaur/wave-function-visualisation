@@ -80,3 +80,16 @@ body,
 .inputAddon .ant-input-number-group-addon {
 	background-color: lightgrey;
 }
+
+.blinkingBorder {
+	box-shadow: red 0px 0px 15px 3px;
+	animation: blink 3s;
+	animation-iteration-count: infinite;
+}
+
+@keyframes blink {
+	30% {
+		border-color: #fff;
+		box-shadow: none;
+	}
+}
