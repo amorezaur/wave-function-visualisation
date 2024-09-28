@@ -1,13 +1,10 @@
-import { Button, Checkbox, InputNumber, message, Radio, Slider } from 'antd';
+import { Button, InputNumber, message, Slider } from 'antd';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
 	CartesianGrid,
-	Dot,
 	Label,
-	Legend,
 	Line,
 	LineChart,
-	ReferenceArea,
 	ReferenceDot,
 	ReferenceLine,
 	ResponsiveContainer,
@@ -16,9 +13,11 @@ import {
 	YAxis,
 } from 'recharts';
 import { PointCoordinates } from './PointCoordinates';
-import Settings, { Configuration } from './Settings';
+import { Configuration } from './Settings';
 
 export interface TangentCoefficients {
+	selectedPointX: number;
+	selectedPointY: number;
 	A: number;
 	B: number;
 	Zero: number;
@@ -49,7 +48,9 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 	const [selectedPoint, setSelectedPoint] = useState<PointCoordinates | undefined>();
 
 	const defaultLeft: number = initialDataSource?.[0]?.[XAxisDataKey];
-	const defaultRight: number = Math.floor(initialDataSource?.[initialDataSource.length - 1]?.[XAxisDataKey]);
+	const defaultRight: number = Math.floor(
+		initialDataSource?.[initialDataSource.length - 1]?.[XAxisDataKey],
+	);
 	const [leftBorder, setLeftBorder] = useState<number>(defaultLeft);
 	const [rightBorder, setRightBorder] = useState<number>(defaultRight);
 
@@ -70,7 +71,19 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 				let newA: number = (y1 - y2) / (x1 - x2);
 				let newB: number = y1 - newA * x1;
 				let tangentOfZero: number = -newB / newA;
-				setSettings((data): Configuration => ({ ...data, tangentCoefficients: { A: newA, B: newB, Zero: tangentOfZero } }));
+				console.log('selectedPoint', selectedPoint);
+				setSettings(
+					(data): Configuration => ({
+						...data,
+						tangentCoefficients: {
+							A: newA,
+							B: newB,
+							Zero: tangentOfZero,
+							selectedPointX: selectedPoint[XAxisDataKey],
+							selectedPointY: selectedPoint[YAxisDataKey],
+						},
+					}),
+				);
 			} else {
 				message.warning('Nie udało się wyznaczyć stycznej. Wybierz inny punkt wykresu.');
 			}
@@ -79,8 +92,9 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 
 	useEffect(() => {
 		setDataSource(initialDataSource);
-		setLeftBorder(defaultLeft);
-		setRightBorder(defaultRight);
+		reset();
+		// setLeftBorder(defaultLeft);
+		// setRightBorder(defaultRight);
 	}, [initialDataSource, YAxisDataKey, XAxisDataKey]);
 
 	const reset = () => {
@@ -98,14 +112,22 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 
 	const xMin = leftBorder;
 	const xMax = rightBorder;
-	const yMin = tangentCoefficients ? tangentCoefficients.A * leftBorder + tangentCoefficients.B : undefined;
-	const yMax = tangentCoefficients ? tangentCoefficients.A * rightBorder + tangentCoefficients.B : undefined;
+	const yMin = tangentCoefficients
+		? tangentCoefficients.A * leftBorder + tangentCoefficients.B
+		: undefined;
+	const yMax = tangentCoefficients
+		? tangentCoefficients.A * rightBorder + tangentCoefficients.B
+		: undefined;
 
 	const xZero = showGraphTangent && tangentCoefficients ? tangentCoefficients.Zero : undefined;
 
 	const paddingX: number = 30;
 	const paddingY: number = 20;
-	let containerStyle: React.CSSProperties = { borderBottom: '1px solid black', padding: `${paddingY}px ${paddingX}px`, backgroundColor: 'lavender' };
+	let containerStyle: React.CSSProperties = {
+		borderBottom: '1px solid black',
+		padding: `${paddingY}px ${paddingX}px`,
+		backgroundColor: 'lavender',
+	};
 
 	return (
 		<div className="graphContainer">
@@ -114,7 +136,9 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 					<ResponsiveContainer style={{ ...containerStyle }}>
 						<LineChart
 							data={dataSource}
-							onClick={(e) => setSelectedPoint(e.activePayload?.find((x) => x.name === YAxisDataKey).payload)}
+							onClick={(e) =>
+								setSelectedPoint(e.activePayload?.find((x) => x.name === YAxisDataKey).payload)
+							}
 							{...{ overflow: 'visible' }}
 						>
 							{/* <Legend /> */}
@@ -123,7 +147,11 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 
 							{/* Oś X */}
 							<XAxis dataKey={XAxisDataKey} domain={[leftBorder, rightBorder]} type="number">
-								<Label style={{ fontSize: '130%', fill: 'black' }} position="bottom" value={XAxisDataKey} />
+								<Label
+									style={{ fontSize: '130%', fill: 'black' }}
+									position="bottom"
+									value={XAxisDataKey}
+								/>
 							</XAxis>
 
 							{/* Podpowiedź */}
@@ -170,7 +198,12 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 								r={3}
 								fill="red"
 								cursor={5}
-								label={{ position: 'top', value: xZero, fill: 'red', fontSize: 14 }}
+								label={{
+									position: 'top',
+									value: xZero,
+									fill: 'red',
+									fontSize: 14,
+								}}
 							/>
 
 							{/* Prosta y=0 */}
@@ -191,7 +224,14 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 						</LineChart>
 					</ResponsiveContainer>
 
-					<div style={{ backgroundColor: '', paddingLeft: 60 + paddingX, paddingRight: paddingX, paddingBottom: 20 }}>
+					<div
+						style={{
+							backgroundColor: '',
+							paddingLeft: 60 + paddingX,
+							paddingRight: paddingX,
+							paddingBottom: 20,
+						}}
+					>
 						<Slider
 							styles={{ track: { background: 'blue' } }}
 							disabled={isDisabled}

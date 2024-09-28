@@ -1,7 +1,7 @@
 import { Checkbox, Descriptions, DescriptionsProps, Radio } from 'antd';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { PointCoordinates } from './PointCoordinates';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import { TangentCoefficients } from './Example';
+import { PointCoordinates } from './PointCoordinates';
 
 export interface Configuration {
 	XAxisDataKey: keyof PointCoordinates;
@@ -12,6 +12,7 @@ export interface Configuration {
 const YAxisDataKey_1: keyof PointCoordinates = 'p(r)';
 const YAxisDataKey_2: keyof PointCoordinates = 'q(r)';
 const YAxisDataKey_3: keyof PointCoordinates = 'r';
+
 const XAxisDataKey_1: keyof PointCoordinates = 'r';
 const XAxisDataKey_2: keyof PointCoordinates = 'index';
 
@@ -26,10 +27,15 @@ interface SettingsProps {
 	setSettings: Dispatch<SetStateAction<Configuration>>;
 }
 const Settings = ({ settings, setSettings }: SettingsProps) => {
-	const { YAxisDataKey, showGraphTangent, tangentCoefficients } = settings;
+	const { XAxisDataKey, YAxisDataKey, showGraphTangent, tangentCoefficients } = settings;
 
 	useEffect(() => {
-		setSettings((data): Configuration => ({ ...data, showGraphTangent: !!tangentCoefficients }));
+		setSettings(
+			(data): Configuration => ({
+				...data,
+				showGraphTangent: !!tangentCoefficients,
+			}),
+		);
 	}, [tangentCoefficients]);
 
 	const isDisabled: boolean = false;
@@ -50,9 +56,16 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 				<Radio.Group
 					disabled={isDisabled}
 					onChange={(e) => {
-						setSettings((data): Configuration => ({ ...data, YAxisDataKey: e.target.value, showGraphTangent: false }));
+						setSettings(
+							(data): Configuration => ({
+								...data,
+								YAxisDataKey: e.target.value,
+								showGraphTangent: false,
+								tangentCoefficients: undefined,
+							}),
+						);
 					}}
-					value={settings.YAxisDataKey}
+					value={YAxisDataKey}
 				>
 					<Radio value={YAxisDataKey_1}>{YAxisDataKey_1}</Radio>
 					<Radio value={YAxisDataKey_2}>{YAxisDataKey_2}</Radio>
@@ -67,9 +80,16 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 				<Radio.Group
 					disabled={isDisabled}
 					onChange={(e) => {
-						setSettings((data): Configuration => ({ ...data, XAxisDataKey: e.target.value, showGraphTangent: false }));
+						setSettings(
+							(data): Configuration => ({
+								...data,
+								XAxisDataKey: e.target.value,
+								showGraphTangent: false,
+								tangentCoefficients: undefined,
+							}),
+						);
 					}}
-					value={settings.XAxisDataKey}
+					value={XAxisDataKey}
 				>
 					<Radio value={XAxisDataKey_1}>{XAxisDataKey_1}</Radio>
 					<Radio value={XAxisDataKey_2}>{XAxisDataKey_2}</Radio>
@@ -81,8 +101,15 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 			label: 'Pokaż styczną',
 			children: (
 				<Checkbox
-					checked={settings.showGraphTangent}
-					onChange={() => setSettings((data): Configuration => ({ ...data, showGraphTangent: !data.showGraphTangent }))}
+					checked={showGraphTangent}
+					onChange={() =>
+						setSettings(
+							(data): Configuration => ({
+								...data,
+								showGraphTangent: !data.showGraphTangent,
+							}),
+						)
+					}
 					disabled={!tangentCoefficients}
 				>
 					{'styczna'}
@@ -96,6 +123,20 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 				<div>
 					<p>A = {tangentCoefficients?.A}</p>
 					<p>B = {tangentCoefficients?.B}</p>
+				</div>
+			),
+		},
+		{
+			key: '33',
+			label: 'Współrzędne wybranego punktu',
+			children: (
+				<div>
+					<p>
+						{YAxisDataKey} =<b> {tangentCoefficients?.selectedPointY}</b>
+					</p>
+					<p>
+						{XAxisDataKey} =<b> {tangentCoefficients?.selectedPointX}</b>
+					</p>
 				</div>
 			),
 		},
@@ -120,7 +161,14 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 	return (
 		<>
 			<div style={{}} className="settings">
-				<Descriptions bordered title="Ustawienia" items={items} column={1} size="small" layout="vertical" />
+				<Descriptions
+					bordered
+					title="Ustawienia"
+					items={items}
+					column={1}
+					size="small"
+					layout="vertical"
+				/>
 			</div>
 		</>
 	);
