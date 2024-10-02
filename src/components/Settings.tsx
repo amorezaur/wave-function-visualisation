@@ -1,17 +1,12 @@
 import { Checkbox, Descriptions, DescriptionsProps, Radio } from 'antd';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { PointCoordinates } from './PointCoordinates';
-import { TangentCoefficients } from './Example';
+import { Dispatch, SetStateAction, useEffect } from 'react';
+import { PointCoordinates } from '../types/PointCoordinates';
+import { Configuration } from '../types/Configuration';
 
-export interface Configuration {
-	XAxisDataKey: keyof PointCoordinates;
-	YAxisDataKey: keyof PointCoordinates;
-	showGraphTangent: boolean;
-	tangentCoefficients?: TangentCoefficients;
-}
 const YAxisDataKey_1: keyof PointCoordinates = 'p(r)';
 const YAxisDataKey_2: keyof PointCoordinates = 'q(r)';
 const YAxisDataKey_3: keyof PointCoordinates = 'r';
+
 const XAxisDataKey_1: keyof PointCoordinates = 'r';
 const XAxisDataKey_2: keyof PointCoordinates = 'index';
 
@@ -26,33 +21,34 @@ interface SettingsProps {
 	setSettings: Dispatch<SetStateAction<Configuration>>;
 }
 const Settings = ({ settings, setSettings }: SettingsProps) => {
-	const { YAxisDataKey, showGraphTangent, tangentCoefficients } = settings;
+	const { XAxisDataKey, YAxisDataKey, showGraphTangent, tangentCoefficients } = settings;
 
 	useEffect(() => {
-		setSettings((data): Configuration => ({ ...data, showGraphTangent: !!tangentCoefficients }));
+		setSettings(
+			(data): Configuration => ({
+				...data,
+				showGraphTangent: !!tangentCoefficients,
+			})
+		);
 	}, [tangentCoefficients]);
 
-	const isDisabled: boolean = false;
-
-	const white: React.CSSProperties = {
-		fontSize: 10,
-		backgroundColor: 'white',
-		padding: 10,
-		// backgroundColor: 'skyblue',
-		height: '100%',
-		overflowY: 'auto' /* Enables vertical scroll */,
-	};
 	const items: DescriptionsProps['items'] = [
 		{
 			key: '1',
 			label: 'Oś Y',
 			children: (
 				<Radio.Group
-					disabled={isDisabled}
 					onChange={(e) => {
-						setSettings((data): Configuration => ({ ...data, YAxisDataKey: e.target.value, showGraphTangent: false }));
+						setSettings(
+							(data): Configuration => ({
+								...data,
+								YAxisDataKey: e.target.value,
+								showGraphTangent: false,
+								tangentCoefficients: undefined,
+							})
+						);
 					}}
-					value={settings.YAxisDataKey}
+					value={YAxisDataKey}
 				>
 					<Radio value={YAxisDataKey_1}>{YAxisDataKey_1}</Radio>
 					<Radio value={YAxisDataKey_2}>{YAxisDataKey_2}</Radio>
@@ -65,11 +61,17 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 			label: 'Oś X',
 			children: (
 				<Radio.Group
-					disabled={isDisabled}
 					onChange={(e) => {
-						setSettings((data): Configuration => ({ ...data, XAxisDataKey: e.target.value, showGraphTangent: false }));
+						setSettings(
+							(data): Configuration => ({
+								...data,
+								XAxisDataKey: e.target.value,
+								showGraphTangent: false,
+								tangentCoefficients: undefined,
+							})
+						);
 					}}
-					value={settings.XAxisDataKey}
+					value={XAxisDataKey}
 				>
 					<Radio value={XAxisDataKey_1}>{XAxisDataKey_1}</Radio>
 					<Radio value={XAxisDataKey_2}>{XAxisDataKey_2}</Radio>
@@ -81,8 +83,15 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 			label: 'Pokaż styczną',
 			children: (
 				<Checkbox
-					checked={settings.showGraphTangent}
-					onChange={() => setSettings((data): Configuration => ({ ...data, showGraphTangent: !data.showGraphTangent }))}
+					checked={showGraphTangent}
+					onChange={() =>
+						setSettings(
+							(data): Configuration => ({
+								...data,
+								showGraphTangent: !data.showGraphTangent,
+							})
+						)
+					}
 					disabled={!tangentCoefficients}
 				>
 					{'styczna'}
@@ -100,6 +109,20 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 			),
 		},
 		{
+			key: '33',
+			label: 'Współrzędne wybranego punktu',
+			children: (
+				<div>
+					<p>
+						{YAxisDataKey} =<b> {tangentCoefficients?.selectedPointY}</b>
+					</p>
+					<p>
+						{XAxisDataKey} =<b> {tangentCoefficients?.selectedPointX}</b>
+					</p>
+				</div>
+			),
+		},
+		{
 			key: '4',
 			label: 'Miejsce zerowe stycznej',
 			children: (
@@ -110,17 +133,19 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 				</div>
 			),
 		},
-		// {
-		// 	key: '5',
-		// 	label: 'Address',
-		// 	children: 'No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China',
-		// },
 	];
 
 	return (
 		<>
-			<div style={{}} className="settings">
-				<Descriptions bordered title="Ustawienia" items={items} column={1} size="small" layout="vertical" />
+			<div className="settings">
+				<Descriptions
+					bordered
+					title="Ustawienia"
+					items={items}
+					column={1}
+					size="small"
+					layout="vertical"
+				/>
 			</div>
 		</>
 	);
