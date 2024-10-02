@@ -4,4 +4,4 @@ interface Config {
 export const config: Config = {
 	useInitialData: false && import.meta.env.DEV,
 };
-//TODO plik do usuniecia?
+//TODO plik do usuniecia? s
