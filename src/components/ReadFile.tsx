@@ -3,7 +3,7 @@ import { RcFile } from 'antd/es/upload';
 import { useEffect, useState } from 'react';
 import { config } from '../config';
 import { testTextData } from '../assets/testData';
-import { PointCoordinates } from './PointCoordinates';
+import { PointCoordinates } from '../types/PointCoordinates';
 import { UploadOutlined } from '@ant-design/icons';
 
 interface ReadFileProps {
@@ -12,9 +12,8 @@ interface ReadFileProps {
 const ReadFile = ({ getFileData }: ReadFileProps) => {
 	const [fileName, setFileName] = useState<string>();
 
-	const readFileTextContent = (text: string, newFileName?: string) => {
+	const readFileTextContent = (text: string, newFileName: string) => {
 		const dataColumnsCount: number = 3;
-
 		let resultData: PointCoordinates[] = [];
 		// Podział tekstu na linie
 		let lines = text.split('\n');
@@ -51,7 +50,7 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 	};
 
 	const loadTestData = () => {
-		readFileTextContent(testTextData);
+		readFileTextContent(testTextData, 'Dane testowe');
 	};
 
 	useEffect(() => {
@@ -77,7 +76,6 @@ const ReadFile = ({ getFileData }: ReadFileProps) => {
 					</Button>
 				</Upload>
 				{fileName}
-				{import.meta.env.DEV && <Tag color="red-inverse">{import.meta.env.VITE_ENV}</Tag>}
 			</Space>
 		</>
 	);

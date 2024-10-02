@@ -1,14 +1,8 @@
 import { Checkbox, Descriptions, DescriptionsProps, Radio } from 'antd';
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
-import { TangentCoefficients } from './Example';
-import { PointCoordinates } from './PointCoordinates';
+import { Dispatch, SetStateAction, useEffect } from 'react';
+import { PointCoordinates } from '../types/PointCoordinates';
+import { Configuration } from '../types/Configuration';
 
-export interface Configuration {
-	XAxisDataKey: keyof PointCoordinates;
-	YAxisDataKey: keyof PointCoordinates;
-	showGraphTangent: boolean;
-	tangentCoefficients?: TangentCoefficients;
-}
 const YAxisDataKey_1: keyof PointCoordinates = 'p(r)';
 const YAxisDataKey_2: keyof PointCoordinates = 'q(r)';
 const YAxisDataKey_3: keyof PointCoordinates = 'r';
@@ -34,27 +28,16 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 			(data): Configuration => ({
 				...data,
 				showGraphTangent: !!tangentCoefficients,
-			}),
+			})
 		);
 	}, [tangentCoefficients]);
 
-	const isDisabled: boolean = false;
-
-	const white: React.CSSProperties = {
-		fontSize: 10,
-		backgroundColor: 'white',
-		padding: 10,
-		// backgroundColor: 'skyblue',
-		height: '100%',
-		overflowY: 'auto' /* Enables vertical scroll */,
-	};
 	const items: DescriptionsProps['items'] = [
 		{
 			key: '1',
 			label: 'Oś Y',
 			children: (
 				<Radio.Group
-					disabled={isDisabled}
 					onChange={(e) => {
 						setSettings(
 							(data): Configuration => ({
@@ -62,7 +45,7 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 								YAxisDataKey: e.target.value,
 								showGraphTangent: false,
 								tangentCoefficients: undefined,
-							}),
+							})
 						);
 					}}
 					value={YAxisDataKey}
@@ -78,7 +61,6 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 			label: 'Oś X',
 			children: (
 				<Radio.Group
-					disabled={isDisabled}
 					onChange={(e) => {
 						setSettings(
 							(data): Configuration => ({
@@ -86,7 +68,7 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 								XAxisDataKey: e.target.value,
 								showGraphTangent: false,
 								tangentCoefficients: undefined,
-							}),
+							})
 						);
 					}}
 					value={XAxisDataKey}
@@ -107,7 +89,7 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 							(data): Configuration => ({
 								...data,
 								showGraphTangent: !data.showGraphTangent,
-							}),
+							})
 						)
 					}
 					disabled={!tangentCoefficients}
@@ -151,16 +133,11 @@ const Settings = ({ settings, setSettings }: SettingsProps) => {
 				</div>
 			),
 		},
-		// {
-		// 	key: '5',
-		// 	label: 'Address',
-		// 	children: 'No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China',
-		// },
 	];
 
 	return (
 		<>
-			<div style={{}} className="settings">
+			<div className="settings">
 				<Descriptions
 					bordered
 					title="Ustawienia"

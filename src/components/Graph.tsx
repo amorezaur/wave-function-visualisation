@@ -12,56 +12,56 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
-import { PointCoordinates } from './PointCoordinates';
-import { Configuration } from './Settings';
+import { Configuration } from '../types/Configuration';
+import { PointCoordinates } from '../types/PointCoordinates';
 
-export interface TangentCoefficients {
-	selectedPointX: number;
-	selectedPointY: number;
-	A: number;
-	B: number;
-	Zero: number;
-}
-interface ExampleProps {
+const paddingX: number = 30;
+const paddingY: number = 20;
+const containerStyle: React.CSSProperties = {
+	borderBottom: '1px solid black',
+	padding: `${paddingY}px ${paddingX}px`,
+	backgroundColor: 'lavender',
+};
+
+interface GraphProps {
 	dataSource: PointCoordinates[];
 	settings: Configuration;
 	setSettings: Dispatch<SetStateAction<Configuration>>;
 }
-const Example = ({ dataSource: initialDataSource, settings, setSettings }: ExampleProps) => {
+const Graph = ({ dataSource: initialDataSource, settings, setSettings }: GraphProps) => {
 	const { YAxisDataKey, XAxisDataKey, showGraphTangent, tangentCoefficients } = settings;
 	const isDisabled: boolean = !initialDataSource.length;
-	// let multiplier: number = 1;
-	// const getMaxY = (data: PointCoordinates[]) => {
-	// 	let result = Math.max(...data.map((x) => x[YAxisDataKey])) * multiplier;
-	// 	return result;
-	// 	return Math.ceil(result);
-	// 	// return Math.abs(result) === 2 ? 'auto' : result;
-	// };
-	// const getMinY = (data: PointCoordinates[]) => {
-	// 	let result = Math.min(...data.map((x) => x[YAxisDataKey])) * multiplier;
-	// 	return result;
-	// 	return Math.floor(result);
-	// 	// return Math.abs(result) === 1 ? 'auto' : result;
-	// };
-
-	const [dataSource, setDataSource] = useState<PointCoordinates[]>([]);
-	const [selectedPoint, setSelectedPoint] = useState<PointCoordinates | undefined>();
-
 	const defaultLeft: number = initialDataSource?.[0]?.[XAxisDataKey];
 	const defaultRight: number = Math.floor(
-		initialDataSource?.[initialDataSource.length - 1]?.[XAxisDataKey],
+		initialDataSource?.[initialDataSource.length - 1]?.[XAxisDataKey]
 	);
 	const [leftBorder, setLeftBorder] = useState<number>(defaultLeft);
 	const [rightBorder, setRightBorder] = useState<number>(defaultRight);
+	const [dataSource, setDataSource] = useState<PointCoordinates[]>([]);
+	const [selectedPoint, setSelectedPoint] = useState<PointCoordinates | undefined>();
+
+	// Parametry stycznej
+	const xMin = leftBorder;
+	const xMax = rightBorder;
+	const yMin = tangentCoefficients
+		? tangentCoefficients.A * leftBorder + tangentCoefficients.B
+		: undefined;
+	const yMax = tangentCoefficients
+		? tangentCoefficients.A * rightBorder + tangentCoefficients.B
+		: undefined;
+	const xZero = showGraphTangent && tangentCoefficients ? tangentCoefficients.Zero : undefined;
+
+	const reset = () => {
+		setLeftBorder(defaultLeft);
+		setRightBorder(defaultRight);
+		setSettings((data): Configuration => ({ ...data, tangentCoefficients: undefined }));
+	};
 
 	useEffect(() => {
 		if (selectedPoint) {
-			// if (selectedPoint.index !== dataSource[0].index && selectedPoint.index !== dataSource[dataSource.length - 1].index) {
 			let previousPoint = initialDataSource.find((x) => x.index === selectedPoint.index - 1);
 			let nextPoint = initialDataSource.find((x) => x.index === selectedPoint.index + 1);
 
-			// console.log('previousPoint', previousPoint);
-			// console.log('nextPoint', nextPoint);
 			if (previousPoint && nextPoint) {
 				let y1 = previousPoint[YAxisDataKey];
 				let y2 = nextPoint[YAxisDataKey];
@@ -71,7 +71,6 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 				let newA: number = (y1 - y2) / (x1 - x2);
 				let newB: number = y1 - newA * x1;
 				let tangentOfZero: number = -newB / newA;
-				console.log('selectedPoint', selectedPoint);
 				setSettings(
 					(data): Configuration => ({
 						...data,
@@ -82,7 +81,7 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 							selectedPointX: selectedPoint[XAxisDataKey],
 							selectedPointY: selectedPoint[YAxisDataKey],
 						},
-					}),
+					})
 				);
 			} else {
 				message.warning('Nie udało się wyznaczyć stycznej. Wybierz inny punkt wykresu.');
@@ -93,15 +92,7 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 	useEffect(() => {
 		setDataSource(initialDataSource);
 		reset();
-		// setLeftBorder(defaultLeft);
-		// setRightBorder(defaultRight);
 	}, [initialDataSource, YAxisDataKey, XAxisDataKey]);
-
-	const reset = () => {
-		setLeftBorder(defaultLeft);
-		setRightBorder(defaultRight);
-		setSettings((data): Configuration => ({ ...data, tangentCoefficients: undefined }));
-	};
 
 	useEffect(() => {
 		let indexStart = initialDataSource.findIndex((x) => x[XAxisDataKey] >= leftBorder);
@@ -110,87 +101,52 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 		setDataSource(dataSlice);
 	}, [leftBorder, rightBorder]);
 
-	const xMin = leftBorder;
-	const xMax = rightBorder;
-	const yMin = tangentCoefficients
-		? tangentCoefficients.A * leftBorder + tangentCoefficients.B
-		: undefined;
-	const yMax = tangentCoefficients
-		? tangentCoefficients.A * rightBorder + tangentCoefficients.B
-		: undefined;
-
-	const xZero = showGraphTangent && tangentCoefficients ? tangentCoefficients.Zero : undefined;
-
-	const paddingX: number = 30;
-	const paddingY: number = 20;
-	let containerStyle: React.CSSProperties = {
-		borderBottom: '1px solid black',
-		padding: `${paddingY}px ${paddingX}px`,
-		backgroundColor: 'lavender',
-	};
-
 	return (
 		<div className="graphContainer">
 			{!isDisabled && (
 				<>
-					<ResponsiveContainer style={{ ...containerStyle }}>
+					<ResponsiveContainer style={containerStyle}>
 						<LineChart
 							data={dataSource}
-							onClick={(e) =>
-								setSelectedPoint(e.activePayload?.find((x) => x.name === YAxisDataKey).payload)
-							}
-							{...{ overflow: 'visible' }}
+							style={{ overflow: 'visible' }}
+							onClick={(e) => {
+								let newPoint = e.activePayload?.find((x) => x.name === YAxisDataKey).payload;
+								setSelectedPoint(newPoint);
+							}}
 						>
-							{/* <Legend /> */}
-
+							{/* Siatka i tło wykresu */}
 							<CartesianGrid strokeDasharray="3 3" fill="white" />
-
-							{/* Oś X */}
-							<XAxis dataKey={XAxisDataKey} domain={[leftBorder, rightBorder]} type="number">
-								<Label
-									style={{ fontSize: '130%', fill: 'black' }}
-									position="bottom"
-									value={XAxisDataKey}
-								/>
-							</XAxis>
-
-							{/* Podpowiedź */}
-							{!isDisabled && <Tooltip />}
 							{/* Wykres */}
 							<Line
 								name={YAxisDataKey}
 								yAxisId={YAxisDataKey}
 								type="monotone"
+								dot={false}
 								dataKey={YAxisDataKey}
 								stroke="blue"
 								animationDuration={300}
-								dot={false}
 							/>
-
-							{/* Oś Y */}
-							<YAxis
-								yAxisId={YAxisDataKey}
-								// domain={[-ttt, ttt]}
-								// domain={[bottomBorder, topBorder]}
-								// domain={['dataMin', 'dataMax']}
-								// domain={['auto', 'auto']}
-								// allowDataOverflow
-								// tickFormatter={(value) => Number(value.toFixed(2))}
-							>
+							{/* Oś X */}
+							<XAxis dataKey={XAxisDataKey} domain={[leftBorder, rightBorder]} type="number">
 								<Label
-									style={{
-										textAnchor: 'middle',
-										fontSize: '140%',
-										fill: 'black',
-									}}
+									position="bottom"
+									value={XAxisDataKey}
+									style={{ fontSize: '130%', fill: 'black' }}
+								/>
+							</XAxis>
+							{/* Oś Y */}
+							<YAxis yAxisId={YAxisDataKey}>
+								<Label
+									style={{ textAnchor: 'middle', fontSize: '140%', fill: 'black' }}
 									angle={270}
 									offset={0}
 									position="insideLeft"
 									value={YAxisDataKey}
 								/>
 							</YAxis>
-
-							{/* Punkt y=0 */}
+							{/* Podpowiedź */}
+							{!isDisabled && <Tooltip />}
+							{/* Punkt przecięcia stycznej z osią OX */}
 							<ReferenceDot
 								yAxisId={YAxisDataKey}
 								x={xZero}
@@ -198,17 +154,19 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 								r={3}
 								fill="red"
 								cursor={5}
-								label={{
-									position: 'top',
-									value: xZero,
-									fill: 'red',
-									fontSize: 14,
-								}}
+								label={{ position: 'top', value: xZero, fill: 'red', fontSize: 14 }}
 							/>
-
+							{/* Wybrany punkt */}
+							<ReferenceDot
+								yAxisId={YAxisDataKey}
+								x={tangentCoefficients?.selectedPointX}
+								y={tangentCoefficients?.selectedPointY}
+								r={3}
+								fill="blue"
+								cursor={5}
+							/>
 							{/* Prosta y=0 */}
 							<ReferenceLine yAxisId={YAxisDataKey} y={0} stroke="red" strokeDasharray="3 3" />
-
 							{/* Styczna */}
 							{showGraphTangent && (
 								<ReferenceLine
@@ -249,7 +207,6 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 							<InputNumber
 								className="inputAddon"
-								// addonBefore={<div style={{ backgroundColor: 'grey' }}>"Zakres od"</div>}
 								addonBefore="Zakres od"
 								step="0.01"
 								disabled={isDisabled}
@@ -293,4 +250,4 @@ const Example = ({ dataSource: initialDataSource, settings, setSettings }: Examp
 	);
 };
 
-export default Example;
+export default Graph;
