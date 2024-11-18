@@ -99,7 +99,7 @@ const Graph = ({ dataSource: initialDataSource, settings, setSettings }: GraphPr
 		let indexEnd = initialDataSource.findIndex((x) => x[XAxisDataKey] >= rightBorder);
 		let dataSlice = initialDataSource.slice(indexStart, indexEnd);
 		setDataSource(dataSlice);
-	}, [leftBorder, rightBorder]);
+	}, [initialDataSource, leftBorder, rightBorder]);
 
 	return (
 		<div className="graphContainer">
@@ -132,6 +132,7 @@ const Graph = ({ dataSource: initialDataSource, settings, setSettings }: GraphPr
 									position="bottom"
 									value={XAxisDataKey}
 									style={{ fontSize: '130%', fill: 'black' }}
+									offset={-10}
 								/>
 							</XAxis>
 							{/* Oś Y */}
